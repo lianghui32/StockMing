@@ -1,0 +1,148 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}股票数据挖掘分析系统{% endblock %}</title>
+    <link rel="stylesheet" href="{% static '/plugins/bootstrap-5.3.0-alpha1-dist/css/bootstrap.min.css' %}">
+    <script src="{% static '/plugins/echarts.min.js' %}"></script>
+    <script src="{% static '/js/jquery-3.4.1.min.js' %}"></script>
+    <style>
+
+        body {
+            height: 100vh;
+            margin: 0;
+        }
+
+        body li {
+            margin-right: 5px;
+        }
+
+        .sticky-md-top {
+            box-shadow: 0 5px 10px #aaa;
+        }
+
+        .bg-light .container-fluid {
+            box-shadow: 0 0 10px 5px #aaa;
+        }
+
+        .screen {
+            padding: 10px 0 10px 0;
+            background-image: url("{% static '/img/img.png'%}");
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        #back-to-top {
+            display: none;
+            position: fixed;
+            bottom: 60px;
+            right: 20px;
+            height: 52px;
+            width: 52px;
+            background-image: url("{% static '/img/back_to_top.png'%}");
+            background-size: contain;
+            background-repeat: no-repeat;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+
+    {% block css %}
+
+    {% endblock %}
+
+    {% block js %}
+
+    {% endblock %}
+</head>
+<body>
+{#导航栏#}
+<div class="sticky-md-top  bg-primary-subtle">
+    <header class="container col-12 d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+        <a href="/home/" class="d-flex align-items-center col-md-5 mb-2 mb-md-0 text-dark text-decoration-none">
+            <img src="{% static '/img/logo.png' %}" alt="logo">
+        </a>
+
+
+        <ul class="nav col-md-auto mb-2 justify-content-center mb-md-0">
+            <li><a href="/home/" class="btn btn-light px-2 link-dark">首页</a></li>
+            <li><a href="/market" class="btn btn-light px-2 link-dark">行情</a></li>
+            <li><a href="/prediction" target="_blank" class="btn btn-light px-2 link-dark">个股预测分析</a></li>
+        </ul>
+
+        <div class="col-md-3 text-end">
+            <div style="text-align: right">
+                {% if user.is_authenticated %}
+                    <!-- 用户已登录的情况 -->
+                    <p>Welcome, <a href="{% url 'user_view' %}" target="_blank">
+                        <button type="button" class="btn btn-secondary">{{ user.username }}</button>
+                    </a>!
+                        <a href="/logout">
+                            <button type="button" class="btn btn-danger">Logout</button>
+                        </a>
+                    </p>
+                {% else %}
+                    <!-- 用户未登录的情况 -->
+                    <p style="color: red;font-size: larger">你还没有登录！请登录。</p>
+                {% endif %}
+            </div>
+
+
+        </div>
+
+    </header>
+</div>
+<button id="back-to-top"></button>
+<!--新建区域-->
+<div class="bg-light">
+    <main class="container-fluid col-md-12 ms-sm-12 col-lg-11 px-md-4 mx-auto mt-1 bg-body">
+
+        {% block content %}
+
+        {% endblock %}
+    </main>
+</div>
+{#页脚#}
+<div class="footer">
+
+    <div class="container fs-4">
+        <footer class="py-3 my-4">
+            <ul class="nav justify-content-center border-bottom pb-3 mb-3">
+                <li class="nav-item"><a href="https://www.eastmoney.com/" class="nav-link px-2 text-muted"
+                                        target="_blank">东方财富</a></li>
+                <li class="nav-item"><a href="https://tushare.pro/" class="nav-link px-2 text-muted" target="_blank">Tushare</a>
+                </li>
+                <li class="nav-item"><a href="https://v5.bootcss.com/docs/getting-started/introduction/"
+                                        class="nav-link px-2 text-muted" target="_blank">Bootstrap</a></li>
+                <li class="nav-item"><a href="https://echarts.apache.org/zh/index.html" class="nav-link px-2 text-muted"
+                                        target="_blank">ECharts</a></li>
+                <li class="nav-item"><a href="https://scikit-learn.org.cn/" class="nav-link px-2 text-muted"
+                                        target="_blank">scikit-learn</a></li>
+            </ul>
+            <p class="text-center text-muted">202009602022, 梁慧</p>
+        </footer>
+    </div>
+</div>
+
+</body>
+<script>
+    $(document).ready(function () {
+        var button = $('#back-to-top');
+        $(window).scroll(function () {
+            if ($(document).scrollTop() > 20 || $(window).scrollTop() > 20) {
+                button.css('display', 'block');
+            } else {
+                button.css('display', 'none');
+            }
+        });
+
+        button.click(function () {
+            $('body,html').animate({
+                scrollTop: 0
+            }, 100);
+        });
+    });
+</script>
+</html>

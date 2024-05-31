@@ -1,0 +1,7 @@
+pandas
+numpy
+requests
+tensorflow==2.16.1
+scikit-learn
+tqdm
+tushare

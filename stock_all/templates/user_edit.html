@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+{% block title %}信息修改{% endblock %}
+{% block content %}
+    <a href="/user_view">
+        <button type="reset" class="btn btn-danger">返回</button>
+    </a>
+    <div class=" card">
+        <div class="h5 text-bg-secondary">
+            <h1 style="text-align: center">修改个人信息</h1>
+        </div>
+        <div class="container">
+            <form method="POST" action="/user_save/">
+                {% csrf_token %}
+                <div class="list-group list-group-flush p-2 text-center">
+                    <p>名字：<input type="text" name="first_name" value="{{ user.first_name }}"></p>
+                    <p>姓氏：<input type="text" name="last_name" value="{{ user.last_name }}"></p>
+                    <p>邮箱：<input type="email" name="email" value="{{ user.email }}"></p>
+                </div>
+
+                <div class="text-center">
+                    {% if user.is_superuser %}
+                        <h3 style="color: red;">管理员个人信息管理需前往系统后台</h3>
+                    {% else %}
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    {% endif %}
+                </div>
+
+
+            </form>
+        </div>
+    </div>
+{% endblock %}

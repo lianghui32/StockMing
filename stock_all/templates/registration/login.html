@@ -1,0 +1,108 @@
+{% extends 'layout.html' %}
+{% block title %}登录{% endblock %}
+{% block css %}
+    <style>
+        .account {
+            width: 400px;
+            border: 1px solid #dddddd;
+            border-radius: 5px;
+            box-shadow: 5px 5px 20px #aaa;
+
+            margin: 50px auto 110px auto;
+            padding: 20px 50px;
+        }
+
+        .account h2, p {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .account form div {
+            margin-top: 10px;
+        }
+
+    </style>
+{% endblock %}
+
+
+{% block content %}
+    <div class="screen">
+        <div class="account" style="background-color: #ffffff;opacity: 0.9">
+            <h2>用户登录</h2>
+            {% if error_message %}
+                <p style="color: red">{{ error_message }}</p>
+            {% endif %}
+            <div class="panel-body">
+                <form method="post" id="login_form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="username">用户名</label>
+                        <input type="text" class="form-control" placeholder="用户名" id="username" name="username"
+                               required="">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">密码</label>
+                        <input type="password" class="form-control" placeholder="密码" id="password" name="password"
+                               required="">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_code" style="display: inline-block;">图片验证码</label>
+                        <div style="display: inline-block;" id="flush_img">
+                            <img src="/image/code/" alt="" id="image_code">
+                        </div>
+                        <div>
+                            <input type="text" name="code" class="form-control" placeholder="请输入图片验证码"
+                                   required="" id="id_code">
+                            <span style="color: red;"></span>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary" style="width: 80px;">登录</button>
+                    </div>
+
+                </form>
+            </div>
+            <p>没有账户？<a href="/register/">注册</a></p>
+        </div>
+    </div>
+    <script>
+            $(document).ready(function () {
+            $('#login-form').submit(function (event) {
+                var username = $('#username').val();
+                var password = $('#password').val();
+
+                if (username.length < 2 || username.length > 10) {
+                    alert('用户名长度必须在2到10个字符之间');
+                    event.preventDefault(); // 阻止表单提交
+                } else if (password.length < 4 || password.length > 20) {
+                    alert('密码长度必须在4到20个字符之间');
+                    event.preventDefault(); // 阻止表单提交
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#flush_img').click(function () {
+                // 添加一个时间戳参数，以确保每次请求都是新的图片
+                var imageUrl = '/image/code/?t=' + new Date().getTime();
+
+                $.ajax({
+                    url: imageUrl,
+                    type: 'GET',
+                    success: function (data) {
+                        // 更新验证码图片
+                        $('#image_code').attr('src', imageUrl);
+
+                        // 清空验证码输入框
+                        $('#id_code').val('');
+                    },
+                    error: function () {
+                        console.log("获取验证码出错");
+                        alert("获取验证码出错");
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

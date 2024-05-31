@@ -1,0 +1,67 @@
+{% extends 'layout.html' %}
+{% block title %}首页{% endblock %}
+{% load static %}
+
+{% block content %}
+    <div class="screen">
+        <!-- Title -->
+        <!-- Section title -->
+        <div class="row mb-5 justify-content-center  text-center">
+            <h2 class=" mt-4 text-danger">本系统所提供的股票分析仅供学习和参考分析，不构成投资建议，投资者应自行承担风险。
+            </h2>
+            <br>
+            <br>
+            <div class="col-lg-6">
+                <div class="mt-2 ">
+                    <p class="lead lh-180">
+                        本系统是基于机器学习的股票数据挖掘分析系统，利用了随机森林和LSTM等技术。除了预测分析，还利用爬虫获取股票交易网站的数据，并将其可视化呈现。后端采用了Django框架，前端使用了Bootstrap和Echarts。</p>
+                </div>
+            </div>
+        </div>
+        <!-- Card -->
+        <div class="row mt-5" style="padding: 10px">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body pb-5">
+                        <div class="pt-4 pb-5">
+                            <img src="{% static '/img/illustration-5.svg' %}" class="img-fluid img-center"
+                                 style="height: 150px;" alt="Illustration">
+                        </div>
+                        <h5 class="h4 lh-130 mb-3">账号管理</h5>
+                        <p class="text-muted mb-0">本系统使用了Django框架的Auth模块，可提供安全、可靠的账号管理功能。
+                            <br>
+                            <br>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body pb-5">
+                        <div class="pt-4 pb-5">
+                            <img src="{% static '/img/illustration-6.svg' %}" class="img-fluid img-center"
+                                 style="height: 150px;" alt="Illustration">
+                        </div>
+                        <h5 class="h4 lh-130 mb-3">数据获取</h5>
+                        <p class="text-muted mb-0">模型训练、测试数据来自于Tushare;
+                            相关实时信息是利用爬虫技术从股票交易网站获取数据，可以提供最新的股票信息。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body pb-5">
+                        <div class="pt-4 pb-5">
+                            <img src="{% static '/img/illustration-7.svg' %}" class="img-fluid img-center"
+                                 style="height: 150px;" alt="Illustration">
+                        </div>
+                        <h5 class="h4 lh-130 mb-3">数据挖掘预测</h5>
+                        <p class="text-muted mb-0">
+                            使用机器学习算法，如随机森林和LSTM，对股票数据进行预测和分析，展示模型评价指标和准确率等数据，仅提供信息参考，不可作为投资建议。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

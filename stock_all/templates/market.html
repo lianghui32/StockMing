@@ -1,0 +1,296 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block title %}Market Page{% endblock %}
+{% block css %}
+    <style>
+        body table thead tr th, td {
+            text-align: center;
+            border: solid 1px gray;
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-2 chart-container">
+            <button class="btn btn-light btn-a" style="text-align: left" id="000001" data-market_type="1">
+                <span class="fs-5">上证指数</span><br>
+
+            </button>
+        </div>
+        <div class="col-2 chart-container">
+            <button class="btn btn-light btn-a" style="text-align: left" id="399001" data-market_type="0">
+                <span class="fs-5">深证成指</span><br>
+
+            </button>
+
+        </div>
+        <div class="col-2 chart-container">
+            <button class="btn btn-light btn-a" style="text-align: left" id="399006" data-market_type="0">
+                <span class="fs-5">创业板指</span><br>
+
+            </button>
+        </div>
+        <div class="col-2 chart-container">
+            <button class="btn btn-light btn-a" style="text-align: left" id="399005" data-market_type="0">
+                <span class="fs-5">中小板指</span><br>
+            </button>
+        </div>
+
+        <div class="col-4 chart-container">
+            <div class="row">
+                <div class="input-group mb-3">
+                    <label for="search_code" class="input-group-text" style="width: auto;">
+                        搜索：
+                    </label>
+                    <label for="search_name"></label>
+                    <select class="form-select" id="search_name">
+                        <option value="">请选择股票</option>
+                    </select>
+                    <input type="text" class="form-control" placeholder="或输入股票代码" aria-label="输入股票代码"
+                           aria-describedby="search_button" name="search_code" id="search_code">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" id="search_button" type="button">搜索</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main"
+         style="width: 100%;height:300px;border: 1px solid #ccc; overflow: hidden;margin-bottom: 20px"></div>
+    <h2 style="text-align: center">主力排名50强</h2>
+    <div style="height: 500px; overflow-y: scroll">
+        <table class="table table-striped table-hover">
+            <thead style="position: sticky; top: 0; background-color: #d9eef8;">
+            <tr>
+
+                <th colspan="4"></th>
+                <th colspan="3">今日排行榜</th>
+                <th colspan="3">5日排行榜</th>
+                <th colspan="3">10日排行榜</th>
+                <th colspan="1"></th>
+            </tr>
+            <tr>
+                <th scope="col">序号</th>
+                <th scope="col">代码</th>
+                <th scope="col">名称</th>
+                <th scope="col">最新价</th>
+                <th scope="col">主力净占比</th>
+                <th scope="col">今日排名</th>
+                <th scope="col">今日涨跌</th>
+                <th scope="col">主力净占比</th>
+                <th scope="col">5日排名</th>
+                <th scope="col">5日涨跌</th>
+                <th scope="col">主力净占比</th>
+                <th scope="col">10日排名</th>
+                <th scope="col">10日涨跌</th>
+                <th scope="col">所属板块</th>
+            </tr>
+
+            </thead>
+            <tbody>
+            {% if data %}
+                {% for item in data %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>
+                            <a class="code">{{ item.f12 }}</a>
+                        </td>
+                        <td>{{ item.f14 }}</td>
+                        <td>{{ item.f2 }}</td>
+                        <td>{{ item.f184 }} %</td>
+                        <td>{{ item.f225 }}</td>
+                        <td>{{ item.f3 }} %</td>
+                        <td>{{ item.f165 }} %</td>
+                        <td>{{ item.f263 }}</td>
+                        <td>{{ item.f109 }} %</td>
+                        <td>{{ item.f175 }} %</td>
+                        <td>{{ item.f264 }}</td>
+                        <td>{{ item.f160 }} %</td>
+                        <td>{{ item.f100 }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="14">No data available</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+        <div style="text-align: center">
+    <span class="step-links">
+        {% if data.has_previous %}
+            <a href="?page=1">&laquo; 第一页</a>
+            <a href="?page={{ data.previous_page_number }}">上一页</a>
+        {% endif %}
+
+        <span class="current">
+            第 {{ data.number }} 页，共 {{ data.paginator.num_pages }} 页.
+        </span>
+
+        {% if data.has_next %}
+            <a href="?page={{ data.next_page_number }}">下一页</a>
+            <a href="?page={{ data.paginator.num_pages }}">尾页 &raquo;</a>
+        {% endif %}
+    </span>
+        </div>
+    </div>
+
+
+    <!-- 加载 jQuery -->
+    <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+    <!-- 加载 ECharts -->
+    <script src="{% static 'plugins/echarts.min.js' %}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var defaultBtn = $('.btn-a:first');
+            defaultBtn.addClass('active');
+            Today_data(defaultBtn.attr('id'), name = null, defaultBtn.attr('data-market_type'));
+        });
+
+
+        $('.btn-a').click(function () {
+            $('.btn-a').removeClass('active');
+            $(this).addClass('active');
+            const marketType = $(this).attr('data-market_type');
+            Today_data(id = $(this).attr('id'), name = null, marketType);
+        });
+
+        $('.code').click(function (event) {
+            event.preventDefault();
+            // 获取当前点击的链接对应的 {{ item.f12 }} 值
+            var codeValue = $(this).text();
+            $('.btn-a').removeClass('active');
+            Today_data(codeValue, name = Node);
+            $('body,html').animate({
+                scrollTop: 0
+            }, 100);
+        });
+
+        $('#search_button').click(function () {
+            var id = $('#search_code').val()
+            console.log("id输入：", id);
+            var name = $('#search_name').val()
+            console.log("名称输入：", name);
+
+            // 检查id和name是否同时为空或同时不为空
+            if (id && name) {
+                alert("只能选择填写ID或名称，不能同时填写两者。");
+            } else {
+                // 移除所有按钮的'active'类
+                $('.btn-a').removeClass('active');
+                Today_data(id, name);
+            }
+        })
+
+        function Today_data(id, name, marketType) {
+            console.log(marketType)
+            $.ajax({
+                url: '/market/Today_data/',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({id: id, name: name, market_type: marketType}),
+
+                success: function (data) {
+                    console.log(data)
+                    {#console.log(data.xDatas)#}
+                    {#console.log(data.sDatas)#}
+                    {#var y_min = Math.min(data.sDatas) * 0.5#}
+                    {#var y_max = Math.max(data.sDatas) * 1.5#}
+                    var chartDom = document.getElementById('main');
+                    var myChart = echarts.init(chartDom);
+                    var option;
+                    if (data.error) {
+                        alert(data.error)
+                    }
+
+                    option = {
+                        title: {
+                            text: data.st_name + ":" + data.st_code + "   " + "当天或最近交易日分时图",
+                            left: 'center'
+                        },
+                        dataZoom: [
+                            {
+                                type: 'inside',
+                                start: 0,
+                                end: 100
+                            },
+                            {
+                                show: true,
+                                type: 'slider',
+                                top: '90%',
+                                start: 0,
+                                end: 100
+                            }
+                        ],
+                        xAxis: {
+                            data: data.xDatas
+                        },
+                        yAxis: {
+                            type: 'value',
+                            show: true,
+                            scale: true,
+                            splitArea: {
+                                show: true
+                            }
+                        },
+                        series: [
+                            {
+                                type: 'candlestick',
+                                data: data.sDatas,
+                                yAxisIndex: 0  // 指定使用第一个 Y 轴
+                            }
+                        ],
+                        tooltip: {
+                            trigger: 'axis', // 设置触发类型为坐标轴触发
+                            axisPointer: {
+                                type: 'cross' // 设置指示器类型为十字准星
+                            }
+                        }
+                    };
+
+                    option && myChart.setOption(option);
+                    window.addEventListener('resize', function () {
+                        // 改变图表尺寸，在容器大小发生改变时需要手动调用
+                        myChart.resize();
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error); // Log any errors to the console
+                }
+            });
+        }
+
+
+    </script>
+    <script>
+        $(document).ready(function () {
+            console.log('请求get_stock_name()');
+            $.ajax({
+                url: '/market/get_stock_name/',
+                type: 'GET',
+                dataType: 'json',  // 指定期望的数据类型为JSON
+                success: function (data) {
+                    // 清空<select>标签
+                    $('#search_name').empty();
+
+                    // 添加默认选项
+                    $('#search_name').append('<option value="">请选择股票</option>');
+
+                    // 假设data是一个对象，包含一个名为stock_names的数组属性
+                    data.stock_names.forEach(function (stockName) {
+                        // 添加股票选项
+                        $('#search_name').append('<option value="' + stockName + '">' + stockName + '</option>');
+                    });
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // 打印错误信息
+                    console.log('请求失败：', textStatus, errorThrown);
+                }
+            });
+        });
+    </script>
+{% endblock %}
