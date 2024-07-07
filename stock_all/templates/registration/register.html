@@ -2,23 +2,62 @@
 {% block title %}注册{% endblock %}
 {% block css %}
     <style>
+        .screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* 使屏幕高度占满整个视口 */
+        }
+
         .account {
             width: 400px;
             border: 1px solid #dddddd;
             border-radius: 5px;
             box-shadow: 5px 5px 20px #aaa;
-
-            margin: 50px auto 110px auto;
             padding: 20px 50px;
+            background-color: #ffffff;
+            opacity: 0.9;
         }
 
-        .account h2, p {
+        .account h2, .account p {
             margin-top: 10px;
             text-align: center;
         }
 
         .account form div {
             margin-top: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-group #flush_img {
+            display: flex;
+            align-items: center;
+        }
+
+        .form-group #flush_img img {
+            margin-left: 10px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-center button {
+            width: 80px;
         }
     </style>
 {% endblock %}

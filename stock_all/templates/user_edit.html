@@ -1,5 +1,51 @@
 {% extends 'layout.html' %}
 {% block title %}信息修改{% endblock %}
+{% block css %}
+    <style>
+      .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+        }
+
+        .card .h5 {
+            width: 100%;
+            text-align: center;
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 0;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .card .table-container {
+            width: 50%;
+            margin-top: 20px;
+        }
+
+        .card .table-container table {
+            width: 100%;
+        }
+
+        .card .table-container table tr {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card .table-container table td {
+            flex: 1;
+        }
+
+        .card .text-center {
+            margin-top: 20px;
+            width: 100%;
+        }
+    </style>
+{% endblock %}
 {% block content %}
     <a href="/user_view">
         <button type="reset" class="btn btn-danger">返回</button>
@@ -8,7 +54,7 @@
         <div class="h5 text-bg-secondary">
             <h1 style="text-align: center">修改个人信息</h1>
         </div>
-        <div class="container">
+        <div class="table-container">
             <form method="POST" action="/user_save/">
                 {% csrf_token %}
                 <div class="list-group list-group-flush p-2 text-center">
