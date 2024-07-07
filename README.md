@@ -1,4 +1,5 @@
 # StockMing
+docker run -p 8001:8000   -v "$(pwd)":/app   -v "$(pwd)/db.sqlite3":/app/db.sqlite3  --name stock_system  my-django-app
 
 #### 介绍
 {**以下是 Gitee 平台说明，您可以替换此简介**
