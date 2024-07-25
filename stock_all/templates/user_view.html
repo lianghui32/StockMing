@@ -2,7 +2,7 @@
 {% block title %}个人信息{% endblock %}
 {% block css %}
     <style>
-      .card {
+            .card {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -22,21 +22,16 @@
             border-radius: 5px 5px 0 0;
         }
 
-        .card .table-container {
-            width: 50%;
-            margin-top: 20px;
-        }
-
-        .card .table-container table {
+        .card  table {
             width: 100%;
         }
 
-        .card .table-container table tr {
+        .card  table tr {
             display: flex;
             justify-content: space-between;
         }
 
-        .card .table-container table td {
+        .card table td {
             flex: 1;
         }
 
@@ -58,26 +53,25 @@
         <div class="h5 text-bg-secondary">
             <h1 style="text-align: center">个人信息</h1>
         </div>
-        <div class="table-container">
-            <table class="table table-striped table-hover border">
-                <tr>
-                    <td>用户名:</td>
-                    <td>{{ user.username }}</td>
-                </tr>
-                <tr>
-                    <td>名字</td>
-                    <td>{{ user.first_name }}</td>
-                </tr>
-                <tr>
-                    <td>姓氏</td>
-                    <td>{{ user.last_name }}</td>
-                </tr>
-                <tr>
-                    <td>邮箱</td>
-                    <td>{{ user.email }}</td>
-                </tr>
-            </table>
-        </div>
+        <table class="table table-striped table-hover border">
+            <tr>
+                <td>用户名:</td>
+                <td>{{ user.username }}</td>
+            </tr>
+            <tr>
+                <td>名字</td>
+                <td>{{ user.first_name }}</td>
+            </tr>
+            <tr>
+                <td>姓氏</td>
+                <td>{{ user.last_name }}</td>
+            </tr>
+            <tr>
+                <td>邮箱</td>
+                <td>{{ user.email }}</td>
+            </tr>
+        </table>
+
         <div class="text-center">
             {% if user.is_superuser %}
                 <h3 style="color: red;">管理员个人信息管理需前往系统后台</h3>

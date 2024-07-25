@@ -2,7 +2,7 @@
 {% block title %}信息修改{% endblock %}
 {% block css %}
     <style>
-      .card {
+        .card {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -22,21 +22,16 @@
             border-radius: 5px 5px 0 0;
         }
 
-        .card .table-container {
-            width: 50%;
-            margin-top: 20px;
-        }
-
-        .card .table-container table {
+        .card  table {
             width: 100%;
         }
 
-        .card .table-container table tr {
+        .card  table tr {
             display: flex;
             justify-content: space-between;
         }
 
-        .card .table-container table td {
+        .card table td {
             flex: 1;
         }
 
@@ -54,25 +49,22 @@
         <div class="h5 text-bg-secondary">
             <h1 style="text-align: center">修改个人信息</h1>
         </div>
-        <div class="table-container">
-            <form method="POST" action="/user_save/">
-                {% csrf_token %}
-                <div class="list-group list-group-flush p-2 text-center">
-                    <p>名字：<input type="text" name="first_name" value="{{ user.first_name }}"></p>
-                    <p>姓氏：<input type="text" name="last_name" value="{{ user.last_name }}"></p>
-                    <p>邮箱：<input type="email" name="email" value="{{ user.email }}"></p>
-                </div>
+        <form method="POST" action="/user_save/">
+            {% csrf_token %}
+            <div class="list-group list-group-flush p-2 text-center">
+                <p>名字：<input type="text" name="first_name" value="{{ user.first_name }}"></p>
+                <p>姓氏：<input type="text" name="last_name" value="{{ user.last_name }}"></p>
+                <p>邮箱：<input type="email" name="email" value="{{ user.email }}"></p>
+            </div>
 
-                <div class="text-center">
-                    {% if user.is_superuser %}
-                        <h3 style="color: red;">管理员个人信息管理需前往系统后台</h3>
-                    {% else %}
-                        <button type="submit" class="btn btn-primary">保存</button>
-                    {% endif %}
-                </div>
-
-
-            </form>
-        </div>
+            <div class="text-center">
+                {% if user.is_superuser %}
+                    <h3 style="color: red;">管理员个人信息管理需前往系统后台</h3>
+                {% else %}
+                    <button type="submit" class="btn btn-primary">保存</button>
+                {% endif %}
+            </div>
+        </form>
+        }
     </div>
 {% endblock %}

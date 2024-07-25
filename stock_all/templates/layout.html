@@ -9,10 +9,15 @@
 
     <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
-
         body {
-            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
             margin: 0;
+        }
+
+        .main-content {
+            flex: 1;
         }
 
         body li {
@@ -23,18 +28,10 @@
             box-shadow: 0 5px 10px #aaa;
         }
 
-        .bg-light .container-fluid {
+        .bg-light {
             box-shadow: 0 0 10px 5px #aaa;
         }
 
-        .screen {
-            padding: 10px 0 10px 0;
-            background-image: url("http://114.132.91.41/img/img.png");
-            background-repeat: no-repeat;
-            background-size: cover;
-            max-width: 100%; /* 确保图片不会超过其容器的宽度 */
-            height: auto; /* 保持图片的宽高比 */
-        }
 
         #back-to-top {
             display: none;
@@ -43,7 +40,7 @@
             right: 20px;
             height: 52px;
             width: 52px;
-            background-image: url("http://114.132.91.41/img/back_to_top.png");
+            background-image: url("http://116.198.228.5/img/back_to_top.png");
             background-size: contain;
             background-repeat: no-repeat;
             border-radius: 5px;
@@ -69,10 +66,8 @@
 <div class="sticky-md-top  bg-primary-subtle">
     <header class="container col-12 d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
         <a href="/home/" class="d-flex align-items-center col-md-5 mb-2 mb-md-0 text-dark text-decoration-none">
-            <img src="http://114.132.91.41/img/logo.png" alt="logo">
-
+            <img src="http://116.198.228.5/img/logo.png" alt="logo">
         </a>
-
 
         <ul class="nav col-md-auto mb-2 justify-content-center mb-md-0">
             <li><a href="/home/" class="btn btn-light px-2 link-dark">首页</a></li>
@@ -96,25 +91,19 @@
                     <p style="color: red;font-size: larger">你还没有登录！请登录。</p>
                 {% endif %}
             </div>
-
-
         </div>
-
     </header>
 </div>
 <button id="back-to-top"></button>
 <!--新建区域-->
-<div class="bg-light">
-    <main class="container-fluid col-md-12 ms-sm-12 col-lg-11 px-md-4 mx-auto mt-1 bg-body">
-
+<div class="bg-light main-content">
+    <div>
         {% block content %}
-
         {% endblock %}
-    </main>
+    </div>
 </div>
 {#页脚#}
-<div class="footer">
-
+<div class="footer mt-auto py-3">
     <div class="container fs-4">
         <footer class="py-3 my-4">
             <ul class="nav justify-content-center border-bottom pb-3 mb-3">
@@ -138,7 +127,9 @@
 </div>
 
 </body>
+
 <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.3.0/echarts.min.js"></script>
+
 <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
     $(document).ready(function () {

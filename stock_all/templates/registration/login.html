@@ -2,13 +2,6 @@
 {% block title %}登录{% endblock %}
 {% block css %}
     <style>
-.screen {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh; /* 使屏幕高度占满整个视口 */
-        }
-
         .account {
             width: 400px;
             border: 1px solid #dddddd;
@@ -64,8 +57,8 @@
 
 
 {% block content %}
-    <div class="screen">
-        <div class="account" style="background-color: #ffffff;opacity: 0.9">
+
+        <div class="account mx-auto" style="background-color: #ffffff;opacity: 0.9">
             <h2>用户登录</h2>
             {% if error_message %}
                 <p style="color: red">{{ error_message }}</p>
@@ -102,7 +95,7 @@
             </div>
             <p>没有账户？<a href="/register/">注册</a></p>
         </div>
-    </div>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script>
             $(document).ready(function () {
             $('#login-form').submit(function (event) {
