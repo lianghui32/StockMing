@@ -18,12 +18,12 @@ from django.urls import path
 from stock_all.views import user, prediction, market, home, account
 
 urlpatterns = [
-    path("", home.home_all),
+    path("", home.home_all, name='index'),
 
     path('image/code/', account.image_code, name='image_code'),
 
     path("admin/", admin.site.urls, name='admin'),
-    path("home/", home.home_all),
+    path("home/", home.home_all, name='home'),
 
     path("market/", market.market_tb),
     path("market/Today_data/", market.Today_data, name='Today_data'),

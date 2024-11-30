@@ -14,7 +14,6 @@
 #             return HttpResponseRedirect(reverse('login'))
 #         response = self.get_response(request)
 #         return response
-
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
@@ -28,9 +27,18 @@ class AuthMiddleware:
         excluded_paths = [
             reverse('image_code'),
             reverse('login'),
-            reverse('register')
+            reverse('register'),
+            reverse('index'),
+            reverse('home'),
         ]
-        if not request.user.is_authenticated and request.path not in excluded_paths:
-            return HttpResponseRedirect(reverse('login'))
+
+        # 如果用户未登录且请求的路径不在排除列表中
+        if not request.user.is_authenticated:
+            if request.path not in excluded_paths:
+                return HttpResponseRedirect(reverse('login'))
+
+        # 处理请求并返回响应
         response = self.get_response(request)
+
         return response
+
