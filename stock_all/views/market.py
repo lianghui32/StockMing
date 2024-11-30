@@ -188,31 +188,32 @@ def get_stock_kline_time(secid, st_name, market_type):
 @csrf_exempt
 def Today_data(request):
     if request.method == 'POST':
-        received_data = json.loads(request.body.decode('utf-8'))
-        id_value = received_data.get('id')
-        st_name = received_data.get('name')
-        market_type = received_data.get('market_type')
-        print(f"id:{id_value}, name:{st_name}, market_type:{market_type}")
-        if id_value is None:
-            id_value = '000001'  # 设置默认值为 '000001',上证指数
-            market_type = '1'
-        print(id_value)
-        if st_name == "":
-            if not id_value.isdigit():
-                print("非纯数字，id转为name用于搜索名称代码")
-                st_name = id_value
-                id_value = ""
-        print(f"id:{id_value}, name:{st_name}, market_type:{market_type}")
-        # 获取最近交易日分时K线数据
-        # market_type = None
-        dataset = get_stock_kline_time(secid=id_value, st_name=st_name, market_type=market_type)
-        if isinstance(dataset, dict) and 'error' in dataset:  # 检查是否返回了错误信息
-            print("get_cached_data:", dataset['error'])
-            error = dataset['error']
-            return JsonResponse({'error': error})
-        # print(dataset)
-        # json_data = json.dumps(dataset)
-        return JsonResponse(dataset, safe=False)
+        # received_data = json.loads(request.body.decode('utf-8'))
+        # id_value = received_data.get('id')
+        # st_name = received_data.get('name')
+        # market_type = received_data.get('market_type')
+        # print(f"id:{id_value}, name:{st_name}, market_type:{market_type}")
+        # if id_value is None:
+        #     id_value = '000001'  # 设置默认值为 '000001',上证指数
+        #     market_type = '1'
+        # print(id_value)
+        # if st_name == "":
+        #     if not id_value.isdigit():
+        #         print("非纯数字，id转为name用于搜索名称代码")
+        #         st_name = id_value
+        #         id_value = ""
+        # print(f"id:{id_value}, name:{st_name}, market_type:{market_type}")
+        # # 获取最近交易日分时K线数据
+        # # market_type = None
+        # dataset = get_stock_kline_time(secid=id_value, st_name=st_name, market_type=market_type)
+        # if isinstance(dataset, dict) and 'error' in dataset:  # 检查是否返回了错误信息
+        #     print("get_cached_data:", dataset['error'])
+        #     error = dataset['error']
+        #     return JsonResponse({'error': error})
+        # # print(dataset)
+        # # json_data = json.dumps(dataset)
+        # return JsonResponse(dataset, safe=False)
+        return JsonResponse({'error': '功能升级中，暂停服务'})
     else:
         get_value = request.GET.get('id')
         print("GET", get_value)  # 打印ID值
@@ -243,18 +244,19 @@ def market_tb(request):
 
 
 def get_stock_name(request):
-    # 使用staticfiles的finders来获取文件的绝对路径
-    csv_file_path = finders.find('stock_code_name.csv')
-
-    if csv_file_path is None:
-        raise FileNotFoundError("CSV file not found")
-
-    # 读取CSV文件
-    stock_info_a_code_name_df = pd.read_csv(csv_file_path)
-
-    # 打印数据框的内容
-    # print(stock_info_a_code_name_df['name'])
-    # 获取股票名称列表
-    stock_names = stock_info_a_code_name_df['name'].str.replace(" ", "").tolist()
-    # print(stock_names)
-    return JsonResponse({"stock_names": stock_names}, safe=False)
+    # # 使用staticfiles的finders来获取文件的绝对路径
+    # csv_file_path = finders.find('stock_code_name.csv')
+    #
+    # if csv_file_path is None:
+    #     raise FileNotFoundError("CSV file not found")
+    #
+    # # 读取CSV文件
+    # stock_info_a_code_name_df = pd.read_csv(csv_file_path)
+    #
+    # # 打印数据框的内容
+    # # print(stock_info_a_code_name_df['name'])
+    # # 获取股票名称列表
+    # stock_names = stock_info_a_code_name_df['name'].str.replace(" ", "").tolist()
+    # # print(stock_names)
+    # return JsonResponse({"stock_names": stock_names}, safe=False)
+    return JsonResponse({'error': '功能升级中，暂停服务'})

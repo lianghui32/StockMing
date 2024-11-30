@@ -47,7 +47,7 @@ StockMing 的软件架构包括以下几个主要组件：
 2. **安装依赖库**：
    
    ```bash
-   pip install -r requirements.txt  # 如果下载慢的话可以使用国内镜像源
+   pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple # 如果下载慢的话可以使用国内镜像源
    ```
 
 3. **配置数据库**：
