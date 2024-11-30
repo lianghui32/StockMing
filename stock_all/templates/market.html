@@ -139,11 +139,12 @@
     </div>
 
 
-    <!-- 加载 jQuery -->
-    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <!-- 加载 ECharts -->
-    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.3.0/echarts.min.js"></script>
-
+<!--    &lt;!&ndash; 加载 jQuery &ndash;&gt;-->
+<!--    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>-->
+<!--    &lt;!&ndash; 加载 ECharts &ndash;&gt;-->
+<!--    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.3.0/echarts.min.js"></script>-->
+    <script src="{% static 'plugins/echarts.min.js' %}"></script>
+    <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             var defaultBtn = $('.btn-a:first');
