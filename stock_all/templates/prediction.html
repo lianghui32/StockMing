@@ -2,433 +2,885 @@
 {% load static %}
 {% block title %}Prediction Page{% endblock %}
 {% block css %}
-
+<style>.loading {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000; /* 确保加载动画显示在最上层 */
+}
+</style>
 {% endblock %}
 
 {% block content %}
+<div id="loading-animation" class="loading" style="display: none;">
+    <!-- 这里可以放置任何加载动画，比如一个简单的旋转图标 -->
+    <img src="{% static 'img/loading.gif' %}" alt="Loading...">
+</div>
 
-    <h2>输入以下数据</h2>
+<h2>输入以下数据</h2>
 
-    <div class="input-group mb-3">
-        <div class="col-sm-10 col-md-6 col-lg-2 col-xl-2 p-1">
-            <label for="start_date">起始时间：</label>
-            <input type="date" id="start_date" name="start_date" class="form-control "
-                   placeholder="请输入起始时间"
-                   aria-describedby="submit-button">
-        </div>
-
-        <div class="col-sm-10 col-md-6 col-lg-2 col-xl-2 p-1">
-            <label for="end_date">最终时间：</label>
-            <input type="date" id="end_date" name="end_date" class="form-control" placeholder="请输入最终时间"
-                   aria-describedby="submit-button">
-
-        </div>
-        <div class="col-sm-10 col-md-6 col-lg-2 col-xl-2 p-1">
-            <label for="look_back">模型时间窗口：</label>
-            <input type="text" id="look_back" name="look_back" class="form-control" placeholder="默认=5" value="5"
-                   aria-describedby="submit-button">
-        </div>
-        <div class="col-sm-10 col-md-6 col-lg-2 col-xl-2 p-1">
-            <label for="test_ratio">测试集数据占比：</label>
-            <input type="text" id="test_ratio" name="test_ratio" class="form-control" placeholder="默认=0.25"
-                   value="0.25"
-                   aria-describedby="submit-button">
-        </div>
-
-        <div class="col-sm-10 col-md-6 col-lg-2 col-xl-2 p-1">
-            <label for="train_epochs">训练轮次：</label>
-            <input type="text" id="train_epochs" name="train_epochs" class="form-control" placeholder="默认=10"
-                   value="10"
-                   aria-describedby="submit-button">
-        </div>
-
-        <div class="col-sm-10 col-md-6 col-lg-2 col-xl-2 p-1">
-            <label for="search_name"></label>
-            <select class="form-select" id="search_name">
-                <option value="">请选择股票</option>
-            </select>
-            <label for="st_code">股票代码：</label>
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="或输入股票代码" aria-label="输入股票代码"
-                       aria-describedby="button-addon" name="ts_code" id="ts_code">
-                <button class="btn btn-primary" id="submit-button">提交</button>
-            </div>
-        </div>
-
+<div class="input-group mb-3">
+    <div class="col-sm-10 col-md-6 col-lg-2 col-xl-2 p-1">
+        <label for="start_date">起始时间：</label>
+        <input type="date" id="start_date" name="start_date" class="form-control "
+               placeholder="请输入起始时间"
+               aria-describedby="submit-button">
     </div>
 
-    <div class="row">
-        {#历史K线#}
-        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
-            <h2>历史K线</h2>
-            <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
-            <div id="k-box" style="width: 100%; height: 400px; border: 1px solid #ccc; overflow: hidden"></div>
+    <div class="col-sm-10 col-md-6 col-lg-2 col-xl-2 p-1">
+        <label for="end_date">最终时间：</label>
+        <input type="date" id="end_date" name="end_date" class="form-control" placeholder="请输入最终时间"
+               aria-describedby="submit-button">
+
+    </div>
+    <div class="col-sm-10 col-md-6 col-lg-2 col-xl-2 p-1">
+        <label for="look_back">模型时间窗口：</label>
+        <input type="text" id="look_back" name="look_back" class="form-control" placeholder="默认=5" value="5"
+               aria-describedby="submit-button">
+    </div>
+    <div class="col-sm-10 col-md-6 col-lg-2 col-xl-2 p-1">
+        <label for="test_ratio">测试集数据占比：</label>
+        <input type="text" id="test_ratio" name="test_ratio" class="form-control" placeholder="默认=0.25"
+               value="0.25"
+               aria-describedby="submit-button">
+    </div>
+
+    <div class="col-sm-10 col-md-6 col-lg-2 col-xl-2 p-1">
+        <label for="train_epochs">训练轮次：</label>
+        <input type="text" id="train_epochs" name="train_epochs" class="form-control" placeholder="默认=10"
+               value="10"
+               aria-describedby="submit-button">
+    </div>
+
+    <div class="col-sm-10 col-md-6 col-lg-2 col-xl-2 p-1">
+        <label for="search_name"></label>
+        <select class="form-select" id="search_name">
+            <option value="">请选择股票</option>
+        </select>
+        <label for="st_code">股票代码：</label>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="或输入股票代码" aria-label="输入股票代码"
+                   aria-describedby="button-addon" name="ts_code" id="ts_code">
+            <button class="btn btn-primary" id="submit-button">提交</button>
         </div>
-        {#LSTM预测结果#}
-        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
-            <h2>预测结果</h2>
-            <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
-            <div id="LSTM-box" style="width: 100%;  height: 400px; border: 1px solid #ccc; overflow: hidden"></div>
+    </div>
+
+</div>
+
+<div class="row">
+    {#历史K线#}
+    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
+        <h2>历史K线</h2>
+        <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+        <div id="k-box" style="width: 100%; height: 400px; border: 1px solid #ccc; overflow: hidden"></div>
+    </div>
+    {#LSTM预测结果#}
+    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
+        <h2>预测结果</h2>
+        <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+        <div id="LSTM-box" style="width: 100%;  height: 400px; border: 1px solid #ccc; overflow: hidden"></div>
+    </div>
+    {#数据说明#}
+    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
+        <div style="width: 100%; height: 400px; border: 1px solid #ccc; overflow-y: scroll">
+            <p style="text-align: center"><strong>模型预测结果说明：</strong></p>
+            <p>本模型使用历史价格数据，通过长短期记忆网络（LSTM）预测未来的股票收盘价。</p>
+            <p><strong>训练集预测（Train Predicted）：</strong>显示了模型基于训练数据集进行的价格预测。</p>
+            <p><strong>测试集预测（Test Predicted）：</strong>显示了模型基于测试数据集（即模型未见过的数据）进行的价格预测。
+            </p>
+            <p><strong>实际价格（Actual）：</strong>对应时间段内股票的真实收盘价。</p>
+            <p><strong>下一交易日预测（Next Day Predicted）：</strong>模型预测的下一日股票收盘价。</p>
+            <p><strong>MSE（Mean Squared Error）：</strong>衡量模型预测值与实际值之间差异的平均平方值，越低表示模型预测越准确。
+            </p>
+            <p><strong>MAE（Mean Absolute Error）：</strong>衡量模型预测值与实际值之间差异的平均绝对值，同样越低越好。
+            </p>
+            <p><strong>训练损失（Train Loss）：</strong>模型在训练过程中每一 epoch 的损失函数值，用于监控模型学习进度。
+            </p>
+            <p><strong>验证损失（Validation Loss）：</strong>模型在验证集上的损失函数值，用于评估模型在未见过的数据上的表现。
+            </p>
+            <p><strong>早停（Early Stopping）：</strong>当验证损失在一定数量的 epochs 内没有改善时，早停机制会终止训练以避免过拟合。
+            </p>
         </div>
-        {#数据说明#}
-        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
-            <div style="width: 100%; height: 400px; border: 1px solid #ccc; overflow-y: scroll">
-                <p style="text-align: center"><strong>模型预测结果说明：</strong></p>
-                <p>本模型使用历史价格数据，通过长短期记忆网络（LSTM）预测未来的股票收盘价。</p>
-                <p><strong>训练集预测（Train Predicted）：</strong>显示了模型基于训练数据集进行的价格预测。</p>
-                <p><strong>测试集预测（Test Predicted）：</strong>显示了模型基于测试数据集（即模型未见过的数据）进行的价格预测。
-                </p>
-                <p><strong>实际价格（Actual）：</strong>对应时间段内股票的真实收盘价。</p>
-                <p><strong>下一交易日预测（Next Day Predicted）：</strong>模型预测的下一日股票收盘价。</p>
-                <p><strong>MSE（Mean Squared Error）：</strong>衡量模型预测值与实际值之间差异的平均平方值，越低表示模型预测越准确。
-                </p>
-                <p><strong>MAE（Mean Absolute Error）：</strong>衡量模型预测值与实际值之间差异的平均绝对值，同样越低越好。
-                </p>
-                <p><strong>训练损失（Train Loss）：</strong>模型在训练过程中每一 epoch 的损失函数值，用于监控模型学习进度。
-                </p>
-                <p><strong>验证损失（Validation Loss）：</strong>模型在验证集上的损失函数值，用于评估模型在未见过的数据上的表现。
-                </p>
-                <p><strong>早停（Early Stopping）：</strong>当验证损失在一定数量的 epochs 内没有改善时，早停机制会终止训练以避免过拟合。
-                </p>
-            </div>
-        </div>
-        {#LSTM Loss值#}
-        <div class=" col-sm-12 col-md-12 col-lg-12 col-xl-6
+    </div>
+    {#LSTM Loss值#}
+    <div class=" col-sm-12 col-md-12 col-lg-12 col-xl-6
             ">
 
-            <div id="Loss-box" style="width: 100%;  height: 400px; border: 1px solid #ccc; overflow: hidden"></div>
-        </div>
-        {#随机森林#}
-        <!--<div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
-            <h2>随机森林预测结果</h2>
-            <div class="row">
-                <div class="col-auto">
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <label for="n_estimators" class="input-group-text" style="width: auto;">
-                                输入决策树数量：
-                            </label>
-                        </div>
-                        <input type="text" class="form-control" placeholder="输入决策树数量" aria-label="输入决策树数量"
-                               aria-describedby="button-rf" name="n_estimators" id="n_estimators" value="100">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" id="button-rf" type="button">提交</button>
-                        </div>
+        <div id="Loss-box" style="width: 100%;  height: 400px; border: 1px solid #ccc; overflow: hidden"></div>
+    </div>
+    {#随机森林#}
+    <!--<div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
+        <h2>随机森林预测结果</h2>
+        <div class="row">
+            <div class="col-auto">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label for="n_estimators" class="input-group-text" style="width: auto;">
+                            输入决策树数量：
+                        </label>
+                    </div>
+                    <input type="text" class="form-control" placeholder="输入决策树数量" aria-label="输入决策树数量"
+                           aria-describedby="button-rf" name="n_estimators" id="n_estimators" value="100">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" id="button-rf" type="button">提交</button>
                     </div>
                 </div>
             </div>
+        </div>
 
 {#            <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->#}
-            <div id="RT-box" style="width: 100%;  height: 500px; border: 1px solid #ccc; overflow: hidden"></div>
-            <h2>结果分析</h2>
-            <div class="col-12" style="background-color: #e0f8e0;font-size: small">
-                <div style="border: 1px solid #ccc;">
-                    <h5>随机森林</h5>
-                    <table id="evaluation_metrics" class="table table-striped" style="border: 1px solid gray">
-                        <thead>
-                        <tr>
-                            <th>指标名</th>
-                            <th>训练均方误差（train_mse）</th>
-                            <th>测试均方误差（test_mse）</th>
-                            <th>R2分数</th>
-                        </tr>
-                        <tr id="zhi">
-                            <th>指标值</th>
-{#                            <!-- 动态生成的表格行将会插入到这里 -->#}
-                        </tr>
-                        </thead>
-                    </table>
-                    <div id="feature-importance" style="height: 400px;overflow: hidden">
+    <div id="RT-box" style="width: 100%;  height: 500px; border: 1px solid #ccc; overflow: hidden"></div>
+    <h2>结果分析</h2>
+    <div class="col-12" style="background-color: #e0f8e0;font-size: small">
+        <div style="border: 1px solid #ccc;">
+            <h5>随机森林</h5>
+            <table id="evaluation_metrics" class="table table-striped" style="border: 1px solid gray">
+                <thead>
+                <tr>
+                    <th>指标名</th>
+                    <th>训练均方误差（train_mse）</th>
+                    <th>测试均方误差（test_mse）</th>
+                    <th>R2分数</th>
+                </tr>
+                <tr id="zhi">
+                    <th>指标值</th>
+                    {#                            <!-- 动态生成的表格行将会插入到这里 -->#}
+                </tr>
+                </thead>
+            </table>
+            <div id="feature-importance" style="height: 400px;overflow: hidden">
 
-                    </div>
-                </div>
             </div>
         </div>
-    -->
     </div>
-    <script src="{% static 'plugins/echarts.min.js' %}"></script>
-    <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+</div>
+-->
+</div>
+<script src="{% static 'plugins/echarts.min.js' %}"></script>
+<script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
 <!--    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.3.0/echarts.min.js"></script>-->
 <!--    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>-->
-    <script>
-        $(document).ready(function () {
-            var today = new Date();
-            var sixMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 6, today.getDate());
+<script>
+    $(document).ready(function () {
+        var today = new Date();
+        var sixMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 6, today.getDate());
 
-            $('#start_date').val(sixMonthsAgo.toISOString().slice(0, 10));
-            $('#end_date').val(today.toISOString().slice(0, 10));
+        $('#start_date').val(sixMonthsAgo.toISOString().slice(0, 10));
+        $('#end_date').val(today.toISOString().slice(0, 10));
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        console.log('请求get_stock_name()');
+        $.ajax({
+            url: '/market/get_stock_name/',
+            type: 'GET',
+            dataType: 'json',  // 指定期望的数据类型为JSON
+            success: function (data) {
+                // 清空<select>标签
+                $('#search_name').empty();
+
+                // 添加默认选项
+                $('#search_name').append('<option value="">请选择股票</option>');
+
+                // 假设data是一个对象，包含一个名为stock_names的数组属性
+                data.stock_names.forEach(function (stockName) {
+                    // 添加股票选项
+                    $('#search_name').append('<option value="' + stockName + '">' + stockName + '</option>');
+                });
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                // 打印错误信息
+                console.log('请求失败：', textStatus, errorThrown);
+            }
         });
-    </script>
-    <script>
-        $(document).ready(function () {
-            console.log('请求get_stock_name()');
-            $.ajax({
-                url: '/market/get_stock_name/',
-                type: 'GET',
-                dataType: 'json',  // 指定期望的数据类型为JSON
-                success: function (data) {
-                    // 清空<select>标签
-                    $('#search_name').empty();
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#submit-button').click(function (e) {
+            e.preventDefault(); // 阻止默认表单提交行为
+ $('#loading-animation').show(); // 显示加载动画
 
-                    // 添加默认选项
-                    $('#search_name').append('<option value="">请选择股票</option>');
+            var start_date = $('#start_date').val();
+            var end_date = $('#end_date').val();
+            var ts_code = $('#ts_code').val();
+            var look_back = parseInt($('#look_back').val());
+            var test_ratio = parseFloat($('#test_ratio').val());
+            var train_epochs = parseInt($('#train_epochs').val());
+            var name = $('#search_name').val();
+            console.log(start_date, end_date, look_back, test_ratio, train_epochs, ts_code, name)
+            // 检查id和name是否同时为空或同时不为空
+            if (ts_code && name) {
+                alert("只能选择填写ID或名称，不能同时填写两者。");
+                $('#loading-animation').hide(); // 隐藏加载动画
+            } else if (!ts_code && !name) {
+                alert("请输入或选择正确的代码或名称。");
+                $('#loading-animation').hide(); // 隐藏加载动画
+            } else {
+                $.ajax({
+                    type: 'POST',
+                    url: '/prediction/lstm/',
+                    data: {
+                        'name': name,
+                        'start_date': start_date,
+                        'end_date': end_date,
+                        'ts_code': ts_code,
+                        'look_back': look_back,
+                        'test_ratio': test_ratio,
+                        'train_epochs': train_epochs,
+                        'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+                    },
+                    success: function (all_data) {
+                        // 处理成功响应
+                        console.log('成功')
+                         $('#loading-animation').hide(); // 隐藏加载动画
+                        const chartDom = document.getElementById('k-box');
+                        const myChart = echarts.init(chartDom);
+                        const LSTM_chartDom = document.getElementById('LSTM-box');
+                        const LSTM_Chart = echarts.init(LSTM_chartDom);
 
-                    // 假设data是一个对象，包含一个名为stock_names的数组属性
-                    data.stock_names.forEach(function (stockName) {
-                        // 添加股票选项
-                        $('#search_name').append('<option value="' + stockName + '">' + stockName + '</option>');
-                    });
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    // 打印错误信息
-                    console.log('请求失败：', textStatus, errorThrown);
-                }
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            $('#submit-button').click(function (e) {
-                e.preventDefault(); // 阻止默认表单提交行为
-
-                var start_date = $('#start_date').val();
-                var end_date = $('#end_date').val();
-                var ts_code = $('#ts_code').val();
-                var look_back = parseInt($('#look_back').val());
-                var test_ratio = parseFloat($('#test_ratio').val());
-                var train_epochs = parseInt($('#train_epochs').val());
-                var name = $('#search_name').val();
-                console.log(start_date, end_date, look_back, test_ratio, train_epochs, ts_code, name)
-                // 检查id和name是否同时为空或同时不为空
-                if (ts_code && name) {
-                    alert("只能选择填写ID或名称，不能同时填写两者。");
-                } else if (!ts_code && !name) {
-                    alert("请输入或选择正确的代码或名称。");
-                } else {
-                    $.ajax({
-                        type: 'POST',
-                        url: '/prediction/lstm/',
-                        data: {
-                            'name': name,
-                            'start_date': start_date,
-                            'end_date': end_date,
-                            'ts_code': ts_code,
-                            'look_back': look_back,
-                            'test_ratio': test_ratio,
-                            'train_epochs': train_epochs,
-                            'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
-                        },
-                        success: function (all_data) {
-                            // 处理成功响应
-                            console.log('成功')
-                            const chartDom = document.getElementById('k-box');
-                            const myChart = echarts.init(chartDom);
-                            const LSTM_chartDom = document.getElementById('LSTM-box');
-                            const LSTM_Chart = echarts.init(LSTM_chartDom);
-
-                            console.log(all_data)
-                            if (all_data.error) {
-                                alert(all_data.error)
-                            }
-                            // 解析JSON字符串为JavaScript对象
-                            // 现在可以直接使用data变量，无需再次解析JSON
-                            var data = JSON.parse(all_data.k_data);
-                            var lstm_data = JSON.parse(all_data.lstm_data);
-                            // data是一个数组，每个元素是一个包含ts_code的对象
-                            $ts_code = data[0].ts_code; // 取数组中的第一个元素的ts_code
-                            //console.log(data)
-                            //console.log('lstm',lstm_data)
-                            KLineChart(myChart, data);
-                            LSTMChart(LSTM_Chart, lstm_data);
-                            window.addEventListener('resize', function () {
-                                // 改变图表尺寸，在容器大小发生改变时需要手动调用
-                                myChart.resize();
-                                LSTM_Chart.resize();
-                            });
-                        },
-                        error: function (error) {
-                            console.log(error)
-                            alert("数据获取或预测分析阶段遇到错误");
+                        console.log(all_data)
+                        if (all_data.error) {
+                            alert(all_data.error)
                         }
-                    });
-                }
-
-            });
-            $('#button-rf').click(function (e) {
-                e.preventDefault(); // 阻止默认表单提交行为
-                // 获取 submit-button 按钮所在表单内的数据
-                var start_date = $('#start_date').val();
-                var end_date = $('#end_date').val();
-                var ts_code = $('#ts_code').val();
-                var test_ratio = parseFloat($('#test_ratio').val());
-                var n_estimators = parseFloat($('#n_estimators').val());
-                var name = $('#search_name').val();
-                console.log("rf:", start_date, end_date, ts_code, test_ratio, n_estimators, name)
-                // 检查id和name是否同时为空或同时不为空
-                if (ts_code && name) {
-                    alert("只能选择填写ID或名称，不能同时填写两者。");
-                } else if (!ts_code && !name) {
-                    alert("请输入或选择正确的代码或名称。");
-                } else {
-                    // AJAX 请求调用随机森林算法的预测功能
-                    $.ajax({
-                        type: 'POST',
-                        url: '/prediction/rf/',
-                        data: {
-                            'name': name,
-                            'start_date': start_date,
-                            'end_date': end_date,
-                            'ts_code': ts_code,
-                            'test_ratio': test_ratio,
-                            'n_estimators': n_estimators,
-                            'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
-                        },
-                        success: function (data) {
-                            const RF_chartDom = document.getElementById('RT-box');
-                            const RF_Chart = echarts.init(RF_chartDom);
-                            if (data.error) {
-                                alert(data.error)
-                            }
-                            var rf_data = JSON.parse(data.rf_data)
-
-                            console.log(rf_data)
-                            console.log('成功获取随机森林预测数据');
-                            // 在这里处理随机森林预测数据，例如更新图表等
-                            RFChart(RF_Chart, rf_data);
-                            window.addEventListener('resize', function () {
-                                // 改变图表尺寸，在容器大小发生改变时需要手动调用
-                                RF_Chart.resize();
-                            });
-                        },
-                        error: function (error) {
-                            console.log(error);
-                            alert("数据获取或预测分析阶段遇到错误");
-                        }
-                    });
-                }
-            });
-        });
-
-
-        function KLineChart(myChart, data) {
-            var upColor = '#ec0000';
-            var upBorderColor = '#8A0000';
-            var downColor = '#00da3c';
-            var downBorderColor = '#008F28';
-
-
-            var arr = GetData(data).reverse();
-            console.log('arr:', arr)
-            console.log(arr);
-            console.log(ts_code);
-
-            function GetData(data) {
-                return data.map(function (row) {
-                    // 提取所需的数据，并返回所需格式的数组
-                    return [
-                        row.trade_date.slice(0, 4) + '/' + row.trade_date.slice(4, 6) + '/' + row.trade_date.slice(6), // 格式化日期
-                        row.open,
-                        row.high,
-                        row.low,
-                        row.close
-                    ];
+                        // 解析JSON字符串为JavaScript对象
+                        // 现在可以直接使用data变量，无需再次解析JSON
+                        var data = JSON.parse(all_data.k_data);
+                        var lstm_data = JSON.parse(all_data.lstm_data);
+                        // data是一个数组，每个元素是一个包含ts_code的对象
+                        $ts_code = data[0].ts_code; // 取数组中的第一个元素的ts_code
+                        //console.log(data)
+                        //console.log('lstm',lstm_data)
+                        KLineChart(myChart, data);
+                        LSTMChart(LSTM_Chart, lstm_data);
+                        window.addEventListener('resize', function () {
+                            // 改变图表尺寸，在容器大小发生改变时需要手动调用
+                            myChart.resize();
+                            LSTM_Chart.resize();
+                        });
+                    },
+                    error: function (error) {
+                        console.log(error)
+                        alert("数据获取或预测分析阶段遇到错误");
+                    }
                 });
             }
 
-            // 数据意义：日期，开盘(open)，收盘(close)，最低(lowest)，最高(highest)
-            var data0 = splitData(arr.reverse());
+        });
+        $('#button-rf').click(function (e) {
+            e.preventDefault(); // 阻止默认表单提交行为
+             $('#loading-animation').show(); // 显示加载动画
+            // 获取 submit-button 按钮所在表单内的数据
+            var start_date = $('#start_date').val();
+            var end_date = $('#end_date').val();
+            var ts_code = $('#ts_code').val();
+            var test_ratio = parseFloat($('#test_ratio').val());
+            var n_estimators = parseFloat($('#n_estimators').val());
+            var name = $('#search_name').val();
+            console.log("rf:", start_date, end_date, ts_code, test_ratio, n_estimators, name)
+            // 检查id和name是否同时为空或同时不为空
+            if (ts_code && name) {
+                alert("只能选择填写ID或名称，不能同时填写两者。");
+                $('#loading-animation').hide(); // 隐藏加载动画
+            } else if (!ts_code && !name) {
+                alert("请输入或选择正确的代码或名称。");
+                $('#loading-animation').hide(); // 隐藏加载动画
+            } else {
+                // AJAX 请求调用随机森林算法的预测功能
+                $.ajax({
+                    type: 'POST',
+                    url: '/prediction/rf/',
+                    data: {
+                        'name': name,
+                        'start_date': start_date,
+                        'end_date': end_date,
+                        'ts_code': ts_code,
+                        'test_ratio': test_ratio,
+                        'n_estimators': n_estimators,
+                        'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+                    },
+                    success: function (data) {
+                        $('#loading-animation').hide(); // 隐藏加载动画
+                        const RF_chartDom = document.getElementById('RT-box');
+                        const RF_Chart = echarts.init(RF_chartDom);
+                        if (data.error) {
+                            alert(data.error)
+                        }
+                        var rf_data = JSON.parse(data.rf_data)
+
+                        console.log(rf_data)
+                        console.log('成功获取随机森林预测数据');
+                        // 在这里处理随机森林预测数据，例如更新图表等
+                        RFChart(RF_Chart, rf_data);
+                        window.addEventListener('resize', function () {
+                            // 改变图表尺寸，在容器大小发生改变时需要手动调用
+                            RF_Chart.resize();
+                        });
+                    },
+                    error: function (error) {
+                        console.log(error);
+                         $('#loading-animation').hide(); // 隐藏加载动画
+                        alert("数据获取或预测分析阶段遇到错误");
+                    }
+                });
+            }
+        });
+    });
 
 
-            function splitData(rawData) {
-                var categoryData = [];
-                var values = []
-                for (var i = 0; i < rawData.length; i++) {
-                    categoryData.push(rawData[i].splice(0, 1)[0]);
-                    values.push(rawData[i])
-                }
+    function KLineChart(myChart, data) {
+        var upColor = '#ec0000';
+        var upBorderColor = '#8A0000';
+        var downColor = '#00da3c';
+        var downBorderColor = '#008F28';
 
-                return {
-                    categoryData: categoryData,
-                    values: values,
-                };
+
+        var arr = GetData(data).reverse();
+        console.log('arr:', arr)
+        console.log(arr);
+        console.log(ts_code);
+
+        function GetData(data) {
+            return data.map(function (row) {
+                // 提取所需的数据，并返回所需格式的数组
+                return [
+                    row.trade_date.slice(0, 4) + '/' + row.trade_date.slice(4, 6) + '/' + row.trade_date.slice(6), // 格式化日期
+                    row.open,
+                    row.high,
+                    row.low,
+                    row.close
+                ];
+            });
+        }
+
+        // 数据意义：日期，开盘(open)，收盘(close)，最低(lowest)，最高(highest)
+        var data0 = splitData(arr.reverse());
+
+
+        function splitData(rawData) {
+            var categoryData = [];
+            var values = []
+            for (var i = 0; i < rawData.length; i++) {
+                categoryData.push(rawData[i].splice(0, 1)[0]);
+                values.push(rawData[i])
             }
 
-            function calculateMA(dayCount) {
-                var result = [];
-                for (var i = 0, len = data0.values.length; i < len; i++) {
-                    if (i < dayCount) {
-                        result.push('-');
-                        continue;
-                    }
-                    var sum = 0;
-                    for (var j = 0; j < dayCount; j++) {
-                        sum += parseFloat(data0.values[i - j][1]);
-                    }
-                    result.push(sum / dayCount);
-                }
-                return result;
-            }
+            return {
+                categoryData: categoryData,
+                values: values,
+            };
+        }
 
-            var option = {
-                    title: {
-                        text: $ts_code,
-                        left: 0,
-                        z: 6,
+        function calculateMA(dayCount) {
+            var result = [];
+            for (var i = 0, len = data0.values.length; i < len; i++) {
+                if (i < dayCount) {
+                    result.push('-');
+                    continue;
+                }
+                var sum = 0;
+                for (var j = 0; j < dayCount; j++) {
+                    sum += parseFloat(data0.values[i - j][1]);
+                }
+                result.push(sum / dayCount);
+            }
+            return result;
+        }
+
+        var option = {
+                title: {
+                    text: $ts_code,
+                    left: 0,
+                    z: 6,
+                    show: true,
+                    subtext: "",
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer:
+                        {
+                            type: 'cross'
+                        }
+                }
+                ,
+                legend: {
+                    data: ['日K', 'MA5', 'MA10', 'MA20', 'MA30']
+                }
+                ,
+                grid: {
+                    left: '10%',
+                    right:
+                        '10%',
+                    bottom:
+                        '15%'
+                }
+                ,
+                xAxis: {
+                    type: 'category',
+                    data:
+                    data0.categoryData,
+                    scale:
+                        true,
+                    boundaryGap:
+                        false,
+                    axisLine:
+                        {
+                            onZero: false
+                        }
+                    ,
+                    splitLine: {
+                        show: false
+                    }
+                    ,
+                    splitNumber: 20,
+                    min:
+                        'dataMin',
+                    max:
+                        'dataMax'
+                }
+                ,
+                yAxis: {
+                    scale: true,
+                    splitArea:
+                        {
+                            show: true
+                        }
+                }
+                ,
+                dataZoom: [
+                    {
+                        type: 'inside',
+                        start: 50,
+                        end: 100
+                    },
+                    {
                         show: true,
-                        subtext: "",
+                        type: 'slider',
+                        top: '90%',
+                        start: 50,
+                        end: 100
+                    }
+                ],
+                toolbox: {
+                    feature: {
+                        dataZoom: {
+                            yAxisIndex: 'none'
+                        },
+                        restore: {},
+                        saveAsImage: {}
+                    }
+                },
+                series:
+                    [
+                        {
+                            name: '日K',
+                            type: 'candlestick',
+                            data: data0.values,
+                            itemStyle: {
+                                color: upColor,
+                                color0: downColor,
+                                borderColor: upBorderColor,
+                                borderColor0: downBorderColor
+                            },
+                            markPoint: {
+                                label: {
+                                    normal: {
+                                        formatter: function (param) {
+                                            return param != null ? Math.round(param.value) : '';
+                                        }
+                                    }
+                                },
+                                data: [
+                                    {
+                                        name: 'XX标点',
+                                        coord: ['2013/5/31', 2300],
+                                        value: 2300,
+                                        itemStyle: {
+                                            color: 'rgb(41,60,85)'
+                                        }
+                                    },
+                                    {
+                                        name: 'highest value',
+                                        type: 'max',
+                                        valueDim: 'highest'
+                                    },
+                                    {
+                                        name: 'lowest value',
+                                        type: 'min',
+                                        valueDim: 'lowest'
+                                    },
+                                    {
+                                        name: 'average value on close',
+                                        type: 'average',
+                                        valueDim: 'close'
+                                    }
+                                ],
+                                tooltip: {
+                                    formatter: function (param) {
+                                        return param.name + '<br>' + (param.data.coord || '');
+                                    }
+                                }
+                            },
+                            markLine: {
+                                symbol: ['none', 'none'],
+                                data: [
+                                    [
+                                        {
+                                            name: 'from lowest to highest',
+                                            type: 'min',
+                                            valueDim: 'lowest',
+                                            symbol: 'circle',
+                                            symbolSize: 10,
+                                            label: {
+                                                show: false
+                                            },
+                                            emphasis: {
+                                                label: {
+                                                    show: false
+                                                }
+                                            }
+                                        },
+                                        {
+                                            type: 'max',
+                                            valueDim: 'highest',
+                                            symbol: 'circle',
+                                            symbolSize: 10,
+                                            label: {
+                                                show: false
+                                            },
+                                            emphasis: {
+                                                label: {
+                                                    show: false
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    {
+                                        name: 'min line on close',
+                                        type: 'min',
+                                        valueDim: 'close'
+                                    },
+                                    {
+                                        name: 'max line on close',
+                                        type: 'max',
+                                        valueDim: 'close'
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            name: 'MA5',///周均线
+                            type: 'line',
+                            data: calculateMA(5),
+                            smooth: true,
+                            lineStyle: {
+                                opacity: 0.5
+                            }
+                        },
+                        {
+                            name: 'MA10',///两周均线
+                            type: 'line',
+                            data: calculateMA(10),
+                            smooth: true,
+                            lineStyle: {
+                                opacity: 0.5
+                            }
+                        },
+                        {
+                            name: 'MA20',///四周均线
+                            type: 'line',
+                            data: calculateMA(20),
+                            smooth: true,
+                            lineStyle: {
+                                opacity: 0.5
+                            }
+                        },
+                        {
+                            name: 'MA30',///月均线
+                            type: 'line',
+                            data: calculateMA(30),
+                            smooth: true,
+                            lineStyle: {
+                                opacity: 0.5
+                            }
+                        },
+
+                    ]
+            }
+        ;
+
+
+        if (option && typeof option === 'object') {
+            myChart.setOption(option);
+        }
+    }
+
+    function LSTMChart(LSTM_Chart, lstm_data) {
+        console.log('lstm', lstm_data)
+        var loss = lstm_data.loss_values;
+        var prediction = lstm_data.prediction;
+        //var residuals = lstm_data.residuals;
+
+        var test_y_actual = prediction['actual_test'].slice();
+        var test_y_pre = prediction['predicted_test'].slice();
+
+        // 确定需要添加的null值的数量
+        var nullsToAdd = prediction.actual_train.length;
+
+        // 给test_y_pre数组前面添加null值
+        for (var i = 0; i < nullsToAdd; i++) {
+            test_y_pre.unshift(null);
+            test_y_actual.unshift(null);
+        }
+        /*预测结果*/
+        var LSTM_option = {
+            title: {
+                left: 'left',
+                text: '股票代码:' + $ts_code + '预测结果',
+            },
+            graphic: {
+                type: "text",
+                left: "center",
+                bottom: "bottom",
+                style: {
+                    text: '训练绝对误差:' + lstm_data['train_mse'].toFixed(4) + ',' + '训练平均绝对误差:' + lstm_data['train_mae'].toFixed(4) + '\n' + '测试绝对误差:' + lstm_data['test_mse'].toFixed(4) + ',' + '测试平均绝对误差:' + lstm_data['test_mae'].toFixed(4),
+                    fill: "#333",
+                    fontSize: 15,
+                    fontWeight: 500
+                }
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                },
+            },
+            toolbox: {
+                feature: {
+                    dataZoom: {
+                        yAxisIndex: 'none'
+                    },
+                    restore: {},
+                    saveAsImage: {}
+                }
+            },
+            dataZoom: [
+                {
+                    type: 'inside',
+                    start: 50,
+                    end: 100
+                },
+                {
+                    show: true,
+                    type: 'slider',
+                    top: '90%',
+                    start: 50,
+                    end: 100
+                }
+            ],
+            legend: {
+                data: ['训练实际值', '测试实际值', '训练预测值', '测试预测值'],
+                top: "5%",
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: prediction.dates_train.concat(prediction.dates_test),
+            },
+            yAxis: {
+                type: 'value',
+                scale: true,
+                splitArea: {
+                    show: true
+                }
+            },
+            series: [
+                {
+                    name: '训练实际值',
+                    type: 'line',
+                    smooth: true,
+                    data: prediction.actual_train,
+                },
+
+                {
+                    name: '训练预测值',
+                    type: 'line',
+                    smooth: true,
+                    data: prediction.predicted_train,
+                },
+                {
+                    name: '测试实际值',
+                    type: 'line',
+                    smooth: true,
+                    data: test_y_actual,
+                },
+                {
+                    name: '测试预测值',
+                    type: 'line',
+                    smooth: true,
+                    data: test_y_pre,
+                },
+            ]
+        };
+        if (LSTM_option && typeof LSTM_option === "object") {
+            LSTM_Chart.setOption(LSTM_option, true);
+        }
+
+        Loss(loss);
+    }
+
+
+    function Loss(loss) {
+        console.log('loss', loss)
+        var chartDom = document.getElementById('Loss-box');
+        var myChart = echarts.init(chartDom);
+        var option;
+
+        option = {
+            title: {
+                text: 'LSTM 模型训练过程中的 Loss 值变化',
+                left: 'center'
+            },
+            toolbox: {
+                feature: {
+                    dataZoom: {
+                        yAxisIndex: 'none'
+                    },
+                    restore: {},
+                    saveAsImage: {}
+                }
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        normal: {
+                            textStyle: {
+                                fontWeight: 'normal',
+                                fontSize: 12,
+                                color: '#323232'
+                            }
+                        }
+                    }
+                }
+            },
+            dataZoom: [
+                {
+                    type: 'inside',
+                    start: 0,
+                    end: 100
+                },
+                {
+                    show: true,
+                    type: 'slider',
+                    top: '90%',
+                    start: 0,
+                    end: 100
+                }
+            ],
+            xAxis: {
+                type: 'category',
+            },
+            yAxis: {
+                type: 'value'
+            },
+            legend: {
+                data: ['训练损失', '验证损失'],
+                top: "5%",
+            },
+            series: [
+                {
+                    name: '训练损失',
+                    data: loss.train_loss_history,
+                    type: 'line',
+                    smooth: true
+                },
+                {
+                    name: '验证损失',
+                    data: loss.val_loss_history,
+                    type: 'line',
+                    smooth: true
+                }
+            ]
+        };
+
+        option && myChart.setOption(option);
+        window.addEventListener('resize', function () {
+            // 改变图表尺寸，在容器大小发生改变时需要手动调用
+            myChart.resize();
+        });
+    }
+
+    /*
+            function RFChart(RF_Chart, rf_data) {
+                var RF_FI_chartDom = document.getElementById('feature-importance');
+                var FIChart = echarts.init(RF_FI_chartDom);
+
+                console.log(rf_data)
+                const trainData = rf_data.train_data;
+                const testData = rf_data.test_data;
+                const metrics = rf_data.evaluation_metrics;
+                const ftimp = rf_data.feature_importance;
+
+                // 函数用于将评估指标转换为HTML表格行
+                function Metrics(metrics) {
+                    var rowsHTML = '<td>' + '指标值' + '</td>';
+                    for (var metric in metrics) {
+                        if (metrics.hasOwnProperty(metric)) {
+                            var value = metrics[metric].toFixed(4);
+                            rowsHTML += '<td>' + value + '</td>';
+                        }
+                    }
+                    return rowsHTML;
+                }
+
+                // 调用函数并将生成的HTML插入到表格的tbody中
+                $('#evaluation_metrics #zhi').html(Metrics(metrics));
+
+                FI_Pie(FIChart, ftimp)
+                console.log(trainData.y_actual.length)
+
+                var test_y_actual = testData['y_actual'].slice();
+                var test_y_pre = testData['y_predicted'].slice();
+
+                // 确定需要添加的null值的数量
+                var nullsToAdd = trainData.y_actual.length + 1;
+
+                // 给test_y_pre数组前面添加null值
+                for (var i = 0; i < nullsToAdd; i++) {
+                    test_y_pre.unshift(null);
+                    test_y_actual.unshift(null);
+                }
+                var y_actual = trainData['y_actual'].slice();
+                var y_predicted = trainData['y_predicted'].slice();
+                y_actual.unshift(null);
+                y_predicted.unshift(null);
+                // 打印修改后的test_y_pre数组
+                //console.log('test_y_pre after adding nulls:', test_y_pre);
+                //console.log('test_y_pre', test_y_pre)
+
+                var option = {
+                    title: {
+                        text: ':实际与预测数据对比',
+                    },
+                    toolbox: {
+                        feature: {
+                            dataZoom: {
+                                yAxisIndex: 'none'
+                            },
+                            restore: {},
+                            saveAsImage: {}
+                        }
                     },
                     tooltip: {
                         trigger: 'axis',
-                        axisPointer:
-                            {
-                                type: 'cross'
-                            }
-                    }
-                    ,
-                    legend: {
-                        data: ['日K', 'MA5', 'MA10', 'MA20', 'MA30']
-                    }
-                    ,
-                    grid: {
-                        left: '10%',
-                        right:
-                            '10%',
-                        bottom:
-                            '15%'
-                    }
-                    ,
-                    xAxis: {
-                        type: 'category',
-                        data:
-                        data0.categoryData,
-                        scale:
-                            true,
-                        boundaryGap:
-                            false,
-                        axisLine:
-                            {
-                                onZero: false
-                            }
-                        ,
-                        splitLine: {
-                            show: false
-                        }
-                        ,
-                        splitNumber: 20,
-                        min:
-                            'dataMin',
-                        max:
-                            'dataMax'
-                    }
-                    ,
-                    yAxis: {
-                        scale: true,
-                        splitArea:
-                            {
-                                show: true
-                            }
-                    }
-                    ,
+                        axisPointer: {
+                            type: 'cross',
+                        },
+                    },
                     dataZoom: [
                         {
                             type: 'inside',
@@ -443,6 +895,80 @@
                             end: 100
                         }
                     ],
+                    legend: {
+                        data: ['训练实际值', '测试实际值', '训练预测值', '测试预测值'],
+                        top: '5%',
+                    },
+                    xAxis: {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: trainData.x.concat(testData.x), // 如果需要分开显示 train 和 test 数据，可以使用两个不同的 x 轴配置
+                    },
+                    yAxis: {
+                        type: 'value',
+                        scale: true,
+                        splitArea: {
+                            show: true
+                        }
+                    },
+                    series: [
+                        {
+                            name: '训练实际值',
+                            type: 'line',
+                            smooth: true,
+                            data: y_actual,
+                        },
+
+                        {
+                            name: '训练预测值',
+                            type: 'line',
+                            smooth: true,
+                            data: y_predicted,
+                        },
+                        {
+                            name: '测试实际值',
+                            type: 'line',
+                            smooth: true,
+                            data: test_y_actual,
+                        },
+                        {
+                            name: '测试预测值',
+                            type: 'line',
+                            smooth: true,
+                            data: test_y_pre,
+                        },
+                    ],
+                };
+
+
+                if (option && typeof option === "object") {
+                    RF_Chart.setOption(option, true);
+                }
+            }
+
+            function FI_Pie(FIChart, ftimp) {
+                const data = [];
+
+                // 遍历原始数组
+                ftimp.forEach(item => {
+                    // 提取特征名称和特征重要性值
+                    const name = item.特征;
+                    const value = item.特征重要性 * 100; // 乘以 100 转换为百分比形式（如果需要）
+
+                    // 将转换后的数据推入新的数组
+                    data.push({value, name});
+                });
+
+                var Fi_option;
+
+                Fi_option = {
+                    title: {
+                        text: '随机森林特征重要程度',
+                        left: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'item'
+                    },
                     toolbox: {
                         feature: {
                             dataZoom: {
@@ -452,538 +978,32 @@
                             saveAsImage: {}
                         }
                     },
-                    series:
-                        [
-                            {
-                                name: '日K',
-                                type: 'candlestick',
-                                data: data0.values,
-                                itemStyle: {
-                                    color: upColor,
-                                    color0: downColor,
-                                    borderColor: upBorderColor,
-                                    borderColor0: downBorderColor
-                                },
-                                markPoint: {
-                                    label: {
-                                        normal: {
-                                            formatter: function (param) {
-                                                return param != null ? Math.round(param.value) : '';
-                                            }
-                                        }
-                                    },
-                                    data: [
-                                        {
-                                            name: 'XX标点',
-                                            coord: ['2013/5/31', 2300],
-                                            value: 2300,
-                                            itemStyle: {
-                                                color: 'rgb(41,60,85)'
-                                            }
-                                        },
-                                        {
-                                            name: 'highest value',
-                                            type: 'max',
-                                            valueDim: 'highest'
-                                        },
-                                        {
-                                            name: 'lowest value',
-                                            type: 'min',
-                                            valueDim: 'lowest'
-                                        },
-                                        {
-                                            name: 'average value on close',
-                                            type: 'average',
-                                            valueDim: 'close'
-                                        }
-                                    ],
-                                    tooltip: {
-                                        formatter: function (param) {
-                                            return param.name + '<br>' + (param.data.coord || '');
-                                        }
-                                    }
-                                },
-                                markLine: {
-                                    symbol: ['none', 'none'],
-                                    data: [
-                                        [
-                                            {
-                                                name: 'from lowest to highest',
-                                                type: 'min',
-                                                valueDim: 'lowest',
-                                                symbol: 'circle',
-                                                symbolSize: 10,
-                                                label: {
-                                                    show: false
-                                                },
-                                                emphasis: {
-                                                    label: {
-                                                        show: false
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                type: 'max',
-                                                valueDim: 'highest',
-                                                symbol: 'circle',
-                                                symbolSize: 10,
-                                                label: {
-                                                    show: false
-                                                },
-                                                emphasis: {
-                                                    label: {
-                                                        show: false
-                                                    }
-                                                }
-                                            }
-                                        ],
-                                        {
-                                            name: 'min line on close',
-                                            type: 'min',
-                                            valueDim: 'close'
-                                        },
-                                        {
-                                            name: 'max line on close',
-                                            type: 'max',
-                                            valueDim: 'close'
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                name: 'MA5',///周均线
-                                type: 'line',
-                                data: calculateMA(5),
-                                smooth: true,
-                                lineStyle: {
-                                    opacity: 0.5
-                                }
-                            },
-                            {
-                                name: 'MA10',///两周均线
-                                type: 'line',
-                                data: calculateMA(10),
-                                smooth: true,
-                                lineStyle: {
-                                    opacity: 0.5
-                                }
-                            },
-                            {
-                                name: 'MA20',///四周均线
-                                type: 'line',
-                                data: calculateMA(20),
-                                smooth: true,
-                                lineStyle: {
-                                    opacity: 0.5
-                                }
-                            },
-                            {
-                                name: 'MA30',///月均线
-                                type: 'line',
-                                data: calculateMA(30),
-                                smooth: true,
-                                lineStyle: {
-                                    opacity: 0.5
-                                }
-                            },
-
-                        ]
-                }
-            ;
-
-
-            if (option && typeof option === 'object') {
-                myChart.setOption(option);
-            }
-        }
-
-        function LSTMChart(LSTM_Chart, lstm_data) {
-            console.log('lstm', lstm_data)
-            var loss = lstm_data.loss_values;
-            var prediction = lstm_data.prediction;
-            //var residuals = lstm_data.residuals;
-
-            var test_y_actual = prediction['actual_test'].slice();
-            var test_y_pre = prediction['predicted_test'].slice();
-
-            // 确定需要添加的null值的数量
-            var nullsToAdd = prediction.actual_train.length;
-
-            // 给test_y_pre数组前面添加null值
-            for (var i = 0; i < nullsToAdd; i++) {
-                test_y_pre.unshift(null);
-                test_y_actual.unshift(null);
-            }
-            /*预测结果*/
-            var LSTM_option = {
-                title: {
-                    left: 'left',
-                    text: '股票代码:' + $ts_code + '预测结果',
-                },
-                graphic: {
-                    type: "text",
-                    left: "center",
-                    bottom: "bottom",
-                    style: {
-                        text: '训练绝对误差:' + lstm_data['train_mse'].toFixed(4) + ',' + '训练平均绝对误差:' + lstm_data['train_mae'].toFixed(4) + '\n' + '测试绝对误差:' + lstm_data['test_mse'].toFixed(4) + ',' + '测试平均绝对误差:' + lstm_data['test_mae'].toFixed(4),
-                        fill: "#333",
-                        fontSize: 15,
-                        fontWeight: 500
-                    }
-                },
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'cross',
+                    legend: {
+                        top: '10%',
+                        left: 'center'
                     },
-                },
-                toolbox: {
-                    feature: {
-                        dataZoom: {
-                            yAxisIndex: 'none'
-                        },
-                        restore: {},
-                        saveAsImage: {}
-                    }
-                },
-                dataZoom: [
-                    {
-                        type: 'inside',
-                        start: 50,
-                        end: 100
-                    },
-                    {
-                        show: true,
-                        type: 'slider',
-                        top: '90%',
-                        start: 50,
-                        end: 100
-                    }
-                ],
-                legend: {
-                    data: ['训练实际值', '测试实际值', '训练预测值', '测试预测值'],
-                    top: "5%",
-                },
-                xAxis: {
-                    type: 'category',
-                    boundaryGap: false,
-                    data: prediction.dates_train.concat(prediction.dates_test),
-                },
-                yAxis: {
-                    type: 'value',
-                    scale: true,
-                    splitArea: {
-                        show: true
-                    }
-                },
-                series: [
-                    {
-                        name: '训练实际值',
-                        type: 'line',
-                        smooth: true,
-                        data: prediction.actual_train,
-                    },
-
-                    {
-                        name: '训练预测值',
-                        type: 'line',
-                        smooth: true,
-                        data: prediction.predicted_train,
-                    },
-                    {
-                        name: '测试实际值',
-                        type: 'line',
-                        smooth: true,
-                        data: test_y_actual,
-                    },
-                    {
-                        name: '测试预测值',
-                        type: 'line',
-                        smooth: true,
-                        data: test_y_pre,
-                    },
-                ]
-            };
-            if (LSTM_option && typeof LSTM_option === "object") {
-                LSTM_Chart.setOption(LSTM_option, true);
-            }
-
-            Loss(loss);
-        }
-
-
-        function Loss(loss) {
-            console.log('loss', loss)
-            var chartDom = document.getElementById('Loss-box');
-            var myChart = echarts.init(chartDom);
-            var option;
-
-            option = {
-                title: {
-                    text: 'LSTM 模型训练过程中的 Loss 值变化',
-                    left: 'center'
-                },
-                toolbox: {
-                    feature: {
-                        dataZoom: {
-                            yAxisIndex: 'none'
-                        },
-                        restore: {},
-                        saveAsImage: {}
-                    }
-                },
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'cross',
-                        label: {
-                            normal: {
-                                textStyle: {
-                                    fontWeight: 'normal',
-                                    fontSize: 12,
-                                    color: '#323232'
-                                }
-                            }
+                    series: [
+                        {
+                            name: 'Access From',
+                            type: 'pie',
+                            radius: ['20%', '70%'],
+                            center: ['40%', '70%'],
+                            // adjust the start and end angle
+                            startAngle: 180,
+                            endAngle: 360,
+                            data: data,
                         }
-                    }
-                },
-                dataZoom: [
-                    {
-                        type: 'inside',
-                        start: 0,
-                        end: 100
-                    },
-                    {
-                        show: true,
-                        type: 'slider',
-                        top: '90%',
-                        start: 0,
-                        end: 100
-                    }
-                ],
-                xAxis: {
-                    type: 'category',
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                legend: {
-                    data: ['训练损失', '验证损失'],
-                    top: "5%",
-                },
-                series: [
-                    {
-                        name: '训练损失',
-                        data: loss.train_loss_history,
-                        type: 'line',
-                        smooth: true
-                    },
-                    {
-                        name: '验证损失',
-                        data: loss.val_loss_history,
-                        type: 'line',
-                        smooth: true
-                    }
-                ]
-            };
+                    ]
+                };
 
-            option && myChart.setOption(option);
-            window.addEventListener('resize', function () {
-                // 改变图表尺寸，在容器大小发生改变时需要手动调用
-                myChart.resize();
-            });
-        }
-
-        /*
-                function RFChart(RF_Chart, rf_data) {
-                    var RF_FI_chartDom = document.getElementById('feature-importance');
-                    var FIChart = echarts.init(RF_FI_chartDom);
-
-                    console.log(rf_data)
-                    const trainData = rf_data.train_data;
-                    const testData = rf_data.test_data;
-                    const metrics = rf_data.evaluation_metrics;
-                    const ftimp = rf_data.feature_importance;
-
-                    // 函数用于将评估指标转换为HTML表格行
-                    function Metrics(metrics) {
-                        var rowsHTML = '<td>' + '指标值' + '</td>';
-                        for (var metric in metrics) {
-                            if (metrics.hasOwnProperty(metric)) {
-                                var value = metrics[metric].toFixed(4);
-                                rowsHTML += '<td>' + value + '</td>';
-                            }
-                        }
-                        return rowsHTML;
-                    }
-
-                    // 调用函数并将生成的HTML插入到表格的tbody中
-                    $('#evaluation_metrics #zhi').html(Metrics(metrics));
-
-                    FI_Pie(FIChart, ftimp)
-                    console.log(trainData.y_actual.length)
-
-                    var test_y_actual = testData['y_actual'].slice();
-                    var test_y_pre = testData['y_predicted'].slice();
-
-                    // 确定需要添加的null值的数量
-                    var nullsToAdd = trainData.y_actual.length + 1;
-
-                    // 给test_y_pre数组前面添加null值
-                    for (var i = 0; i < nullsToAdd; i++) {
-                        test_y_pre.unshift(null);
-                        test_y_actual.unshift(null);
-                    }
-                    var y_actual = trainData['y_actual'].slice();
-                    var y_predicted = trainData['y_predicted'].slice();
-                    y_actual.unshift(null);
-                    y_predicted.unshift(null);
-                    // 打印修改后的test_y_pre数组
-                    //console.log('test_y_pre after adding nulls:', test_y_pre);
-                    //console.log('test_y_pre', test_y_pre)
-
-                    var option = {
-                        title: {
-                            text: ':实际与预测数据对比',
-                        },
-                        toolbox: {
-                            feature: {
-                                dataZoom: {
-                                    yAxisIndex: 'none'
-                                },
-                                restore: {},
-                                saveAsImage: {}
-                            }
-                        },
-                        tooltip: {
-                            trigger: 'axis',
-                            axisPointer: {
-                                type: 'cross',
-                            },
-                        },
-                        dataZoom: [
-                            {
-                                type: 'inside',
-                                start: 50,
-                                end: 100
-                            },
-                            {
-                                show: true,
-                                type: 'slider',
-                                top: '90%',
-                                start: 50,
-                                end: 100
-                            }
-                        ],
-                        legend: {
-                            data: ['训练实际值', '测试实际值', '训练预测值', '测试预测值'],
-                            top: '5%',
-                        },
-                        xAxis: {
-                            type: 'category',
-                            boundaryGap: false,
-                            data: trainData.x.concat(testData.x), // 如果需要分开显示 train 和 test 数据，可以使用两个不同的 x 轴配置
-                        },
-                        yAxis: {
-                            type: 'value',
-                            scale: true,
-                            splitArea: {
-                                show: true
-                            }
-                        },
-                        series: [
-                            {
-                                name: '训练实际值',
-                                type: 'line',
-                                smooth: true,
-                                data: y_actual,
-                            },
-
-                            {
-                                name: '训练预测值',
-                                type: 'line',
-                                smooth: true,
-                                data: y_predicted,
-                            },
-                            {
-                                name: '测试实际值',
-                                type: 'line',
-                                smooth: true,
-                                data: test_y_actual,
-                            },
-                            {
-                                name: '测试预测值',
-                                type: 'line',
-                                smooth: true,
-                                data: test_y_pre,
-                            },
-                        ],
-                    };
-
-
-                    if (option && typeof option === "object") {
-                        RF_Chart.setOption(option, true);
-                    }
-                }
-
-                function FI_Pie(FIChart, ftimp) {
-                    const data = [];
-
-                    // 遍历原始数组
-                    ftimp.forEach(item => {
-                        // 提取特征名称和特征重要性值
-                        const name = item.特征;
-                        const value = item.特征重要性 * 100; // 乘以 100 转换为百分比形式（如果需要）
-
-                        // 将转换后的数据推入新的数组
-                        data.push({value, name});
-                    });
-
-                    var Fi_option;
-
-                    Fi_option = {
-                        title: {
-                            text: '随机森林特征重要程度',
-                            left: 'center'
-                        },
-                        tooltip: {
-                            trigger: 'item'
-                        },
-                        toolbox: {
-                            feature: {
-                                dataZoom: {
-                                    yAxisIndex: 'none'
-                                },
-                                restore: {},
-                                saveAsImage: {}
-                            }
-                        },
-                        legend: {
-                            top: '10%',
-                            left: 'center'
-                        },
-                        series: [
-                            {
-                                name: 'Access From',
-                                type: 'pie',
-                                radius: ['20%', '70%'],
-                                center: ['40%', '70%'],
-                                // adjust the start and end angle
-                                startAngle: 180,
-                                endAngle: 360,
-                                data: data,
-                            }
-                        ]
-                    };
-
-                    Fi_option && FIChart.setOption(Fi_option);
-                    window.addEventListener('resize', function () {
-                        // 改变图表尺寸，在容器大小发生改变时需要手动调用
-                        FIChart.resize();
-                    });
-                }
-        */
-    </script>
+                Fi_option && FIChart.setOption(Fi_option);
+                window.addEventListener('resize', function () {
+                    // 改变图表尺寸，在容器大小发生改变时需要手动调用
+                    FIChart.resize();
+                });
+            }
+    */
+</script>
 
 
 {% endblock %}
