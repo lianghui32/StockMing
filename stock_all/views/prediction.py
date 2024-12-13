@@ -408,63 +408,63 @@ def get_cached_data(ts_code, start_date, end_date):
 @csrf_exempt
 def lstm_pre(request):
     if request.method == 'POST':
-        # ts_code = request.POST.get("ts_code")
-        # start_date = request.POST.get("start_date")
-        # end_date = request.POST.get("end_date")
-        # st_name = request.POST.get("name")
-        # print(f"ts_code:{ts_code}, start_date:{start_date}, end_date:{end_date}, st_name:{st_name}")
-        # look_back = request.POST.get("look_back")
-        # test_ratio = request.POST.get("test_ratio")
-        # train_epochs = request.POST.get("train_epochs")
-        # print(f"look_back:{look_back}, test_ratio:{test_ratio}, train_epochs:{train_epochs}")
-        # if st_name == "":
-        #     if not ts_code.isdigit():
-        #         print("非纯数字，id转为name用于搜索名称代码")
-        #         st_name = ts_code
-        #         ts_code = get_csv_code(st_name)
-        # else:
-        #     ts_code = get_csv_code(st_name)
-        # print(f"ts_code:{ts_code}, st_name:{st_name}")
-        # if ts_code and start_date and end_date:
-        #     data, now_df = get_cached_data(ts_code, start_date, end_date)
-        #     print(data.head(2))
-        #     if isinstance(data, dict) and 'error' in data:
-        #         error = data['error']
-        #         print('lstm_pre:', error)
-        #         return JsonResponse({'error': error})
-        #     try:
-        #         print("lstm预测...")
-        #         print("表头：", data.columns)
-        #         print("数据：\n", data.head(2))
-        #
-        #         # features = ['open', 'high', 'low', 'pre_close', 'change', 'pct_chg', 'vol', 'amount']
-        #         # features = ['open', 'high', 'low', 'pre_close', 'close-open', 'pct_chg', 'vol', 'amount', 'high-low',
-        #         #             'change', 'trade_date',
-        #         #             'close']
-        #         features = ['trade_date', 'open', 'high', 'low', 'close', 'pre_close',
-        #                     'change', 'pct_chg', 'vol', 'amount', 'close-open', 'high-low', 'MA5', 'rsi5']
-        #         test_ratio = float(test_ratio)
-        #         look_back = int(look_back)
-        #         train_epochs = int(train_epochs)
-        #         lstm_data = lstm_predict(data, look_back, test_ratio, train_epochs, features)
-        #         # print(lstm_data)
-        #         # 将DataFrame转换为JSON格式
-        #
-        #         k_data = now_df.to_json(orient='records')
-        #
-        #         data_json = {
-        #             'k_data': k_data,
-        #             'lstm_data': lstm_data,
-        #         }
-        #         print(type(data_json))
-        #         # data_json = {'a': 'a'}
-        #         return JsonResponse(data_json, safe=False)
-        #     except Exception as e:
-        #         # 处理异常并返回错误信息
-        #         return JsonResponse({'error': 'lstm_pre预测过程报错'})
-        # else:
-        #     return JsonResponse({'error': '请输入有效的股票代码和时间'})
-            return JsonResponse({'error': '功能升级中，暂停服务'})
+        ts_code = request.POST.get("ts_code")
+        start_date = request.POST.get("start_date")
+        end_date = request.POST.get("end_date")
+        st_name = request.POST.get("name")
+        print(f"ts_code:{ts_code}, start_date:{start_date}, end_date:{end_date}, st_name:{st_name}")
+        look_back = request.POST.get("look_back")
+        test_ratio = request.POST.get("test_ratio")
+        train_epochs = request.POST.get("train_epochs")
+        print(f"look_back:{look_back}, test_ratio:{test_ratio}, train_epochs:{train_epochs}")
+        if st_name == "":
+            if not ts_code.isdigit():
+                print("非纯数字，id转为name用于搜索名称代码")
+                st_name = ts_code
+                ts_code = get_csv_code(st_name)
+        else:
+            ts_code = get_csv_code(st_name)
+        print(f"ts_code:{ts_code}, st_name:{st_name}")
+        if ts_code and start_date and end_date:
+            data, now_df = get_cached_data(ts_code, start_date, end_date)
+            print(data.head(2))
+            if isinstance(data, dict) and 'error' in data:
+                error = data['error']
+                print('lstm_pre:', error)
+                return JsonResponse({'error': error})
+            try:
+                print("lstm预测...")
+                print("表头：", data.columns)
+                print("数据：\n", data.head(2))
+
+                # features = ['open', 'high', 'low', 'pre_close', 'change', 'pct_chg', 'vol', 'amount']
+                # features = ['open', 'high', 'low', 'pre_close', 'close-open', 'pct_chg', 'vol', 'amount', 'high-low',
+                #             'change', 'trade_date',
+                #             'close']
+                features = ['trade_date', 'open', 'high', 'low', 'close', 'pre_close',
+                            'change', 'pct_chg', 'vol', 'amount', 'close-open', 'high-low', 'MA5', 'rsi5']
+                test_ratio = float(test_ratio)
+                look_back = int(look_back)
+                train_epochs = int(train_epochs)
+                lstm_data = lstm_predict(data, look_back, test_ratio, train_epochs, features)
+                # print(lstm_data)
+                # 将DataFrame转换为JSON格式
+
+                k_data = now_df.to_json(orient='records')
+
+                data_json = {
+                    'k_data': k_data,
+                    'lstm_data': lstm_data,
+                }
+                print(type(data_json))
+                # data_json = {'a': 'a'}
+                return JsonResponse(data_json, safe=False)
+            except Exception as e:
+                # 处理异常并返回错误信息
+                return JsonResponse({'error': 'lstm_pre预测过程报错'})
+        else:
+            return JsonResponse({'error': '请输入有效的股票代码和时间'})
+        #     return JsonResponse({'error': '功能升级中，暂停服务'})
     else:
         return render(request, "prediction.html")
 
