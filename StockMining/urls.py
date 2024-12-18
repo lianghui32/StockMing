@@ -15,10 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from stock_all.views import user, prediction, market, home, account
+from stock_all.views import user, prediction, market, home, account,tools
 
 urlpatterns = [
     path("", home.home_all, name='index'),
+    path('search_stocks/', tools.search_stocks, name='search_stocks'),
 
     path('image/code/', account.image_code, name='image_code'),
 

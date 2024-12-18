@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 import os
 from django.core.cache import cache
-from .market import *
+from .tools import *
 from datetime import datetime
 
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
@@ -422,8 +422,10 @@ def lstm_pre(request):
                 print("非纯数字，id转为name用于搜索名称代码")
                 st_name = ts_code
                 ts_code = get_csv_code(st_name)
-        else:
+        elif ts_code == "":
             ts_code = get_csv_code(st_name)
+        else:
+            pass
         print(f"ts_code:{ts_code}, st_name:{st_name}")
         if ts_code and start_date and end_date:
             data, now_df = get_cached_data(ts_code, start_date, end_date)
