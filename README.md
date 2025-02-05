@@ -1,4 +1,6 @@
 # StockMing
+gitee仓库：[https://gitee.com/lianghui2333/stock-ming](https://gitee.com/lianghui2333/stock-ming)
+github仓库：[https://github.com/lianghui32/StockMing](https://github.com/lianghui32/StockMing)
 
 StockMing 是一个简易的股票预测系统，其功能可能未能满足所有人的期望。🙏我对此表示歉意，并期待未来能够提供更完善的服务。已线上部署的网站示例：[登录](http://175.178.120.28:8001/login/) 
 
