@@ -1,10 +1,15 @@
 # StockMing
+
 gitee仓库：[https://gitee.com/lianghui2333/stock-ming](https://gitee.com/lianghui2333/stock-ming)
 github仓库：[https://github.com/lianghui32/StockMing](https://github.com/lianghui32/StockMing)
 
 StockMing 是一个简易的股票预测系统，其功能可能未能满足所有人的期望。🙏我对此表示歉意，并期待未来能够提供更完善的服务。已线上部署的网站示例：[登录](http://175.178.120.28:8001/login/) 
 
-*（如果需要一个更加完善的系统可以加我的微信18154759159，我去年跟一个奸商600元买了一个😭，虽然写的比我的多，但是感觉并不好🗑️，只要50元就可以给你）*
+
+
+**另一个之前跟别人买的基于flask+lstm的系统仓库地址**：[lh/flask_stockv2](https://gitee.com/lianghui2333/flask_stockv2)
+
+
 
 目前，系统在资源方面依赖于线上资源，例如前端组件，使用了 Bootstrap、jQuery 和 ECharts 等库，并通过 CDN 获取这些资源。虽然在本地的 `/static/` 目录下也提供了这些资源，但在云服务器上部署时（当 `debug` 设置为 `false`），可能会遇到跨域问题，导致资源路径无法找到。然而，当 `debug` 设置为 `true` 时，这个问题就不会出现。因此，我们选择了使用 CDN 来简化部署过程。
 
