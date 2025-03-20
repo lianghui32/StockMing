@@ -19,7 +19,6 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0",
 }
 
-
 # # 定义半角转全角的函数，跳过中文字符
 # def half_to_full(ch):
 #     if 0x0020 <= ord(ch) <= 0x007E:  # 半角字符的范围从0x0020到0x007E
@@ -71,6 +70,7 @@ headers = {
 #         return {'error': f"get_csv_code 错误 - {e}"}
 #
 
+
 def get_security_type(security_code: str):
     """
     根据股票代码判断所属证券市场
@@ -93,18 +93,18 @@ def get_security_type(security_code: str):
             raise ValueError("未知股票代码，可能为其他交易所股票代码，非上交所或深交所")
     except Exception as e:
         # 处理异常并返回错误信息
-        print(f"判断代码所属证券市场时发生错误: {e}")
+        print(f"判断代码所属证券市场时发生错误: {e}")  # 输出错误信息，说明在判断股票代码所属证券市场时发生了错误
         return {'error': f"get_security_type 错误 - {e}"}
 
 
 def get_stock_kline_time(secid, st_name, market_type):
     if secid == "":
-        print("id为空，使用名称查找id")
+        print("id为空，使用名称查找id")  # 输出说明id为空，将使用名称查找股票代码
         secid = get_csv_code(st_name)
         if isinstance(secid, dict) and 'error' in secid:  # 检查是否返回了错误信息
-            print("get_cached_data:", secid['error'])
+            print("get_stock_kline_time:", secid['error'])  # 输出错误信息，说明在查找股票代码时发生了错误
             return secid  # 直接返回错误信息
-        print(secid)
+        print(f"找到的股票代码: {secid}")  # 输出找到的股票代码
         market_type = None
 
     security_type = None
@@ -117,9 +117,9 @@ def get_stock_kline_time(secid, st_name, market_type):
     else:
         if not market_type:
             security_type = get_security_type(secid)
-            print("security_type:", security_type)
+            print(f"security_type: {security_type}")  # 输出股票所属的证券类型（"SH", "SZ", "BJ"）
             if isinstance(security_type, dict) and 'error' in security_type:  # 检查是否返回了错误信息
-                print("get_cached_data:", security_type['error'])
+                print("get_stock_kline_time:", security_type['error'])  # 输出错误信息，说明在判断股票代码所属证券市场时发生了错误
                 return security_type  # 直接返回错误信息
             elif security_type == 'SH':
                 market_type = int(1)
@@ -129,23 +129,22 @@ def get_stock_kline_time(secid, st_name, market_type):
                 market_type = int(0)
             else:
                 pass
-    print('secid:', secid)
-    print('market_type:', market_type)
+    print(f'secid: {secid}')  # 输出处理后的股票代码
+    print(f'market_type: {market_type}')  # 输出市场类型
 
     url = f'https://push2his.eastmoney.com/api/qt/stock/trends2/get?fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58&ut=fa5fd1943c7b386f172d6893dbfba10b&iscr=0&ndays=1&secid={market_type}.{secid}&_=1711960032052'
-    # url='https://push2his.eastmoney.com/api/qt/stock/trends2/get?fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58&ut=fa5fd1943c7b386f172d6893dbfba10b&iscr=0&ndays=1&secid=1.000001&_=1711960032052'
-    #     print(url)
     try:
         resp = requests.get(url, headers)
         resp.encoding = 'utf8'
-        print(resp.status_code)
-        # resp_data = resp.json()['data']
-        print("market:", resp.json()['data']['market'])
-        st_code = resp.json()['data']['code']
+        print(f"接口响应状态码: {resp.status_code}")  # 输出接口响应的状态码
+        # 处理接口返回的数据
+        resp_data = resp.json()
+        print(f"市场类型: {resp_data['data']['market']}")  # 输出市场类型
+        st_code = resp_data['data']['code']
         if security_type is None:
-            if resp.json()['data']['market'] == 1:
+            if resp_data['data']['market'] == 1:
                 st_code = st_code + ".SH"
-            elif resp.json()['data']['market'] == 0:
+            elif resp_data['data']['market'] == 0:
                 st_code = st_code + ".SZ"
         else:
             if security_type == 'SZ':
@@ -155,11 +154,11 @@ def get_stock_kline_time(secid, st_name, market_type):
             else:
                 st_code = st_code + ".SH"
 
-        st_name = resp.json()['data']['name']
-        resp_trends = resp.json()['data']['trends']
+        st_name = resp_data['data']['name']
+        resp_trends = resp_data['data']['trends']
     except Exception as e:
         # 处理异常并返回错误信息
-        print(f"获取接口数据或处理时发生错误: {e}")
+        print(f"获取接口数据或处理时发生错误: {e}")  # 输出错误信息，说明在获取接口数据或处理数据时发生了错误
         return {'error': f"get_stock_kline_time 错误 - {e}"}
 
     xDatas = []  # 时间戳列表
@@ -175,8 +174,11 @@ def get_stock_kline_time(secid, st_name, market_type):
 
         xDatas.append(timestamp)
         sDatas.append([open_value, close_value, low_value, high_value])
-    # print(xDatas)
-    # print(sDatas)
+
+    print(f"处理后的股票代码: {st_code}")  # 输出处理后的股票代码
+    print(f"股票名称: {st_name}")  # 输出股票名称
+    print(f"时间戳列表: {xDatas}")  # 输出时间戳列表
+    print(f"开盘、收盘、最低、最高值列表: {sDatas}")  # 输出开盘、收盘、最低、最高值列表
 
     return {
         'st_code': st_code,
@@ -193,46 +195,46 @@ def Today_data(request):
         id_value = received_data.get('id')
         st_name = received_data.get('name')
         market_type = received_data.get('market_type')
-        print(f"id:{id_value}, name:{st_name}, market_type:{market_type}")
+        print(f"接收到的POST数据 - id: {id_value}, name: {st_name}, market_type: {market_type}")  # 输出接收到的POST数据
+
         if id_value is None:
             id_value = '000001'  # 设置默认值为 '000001',上证指数
             market_type = '1'
-        print(id_value)
+        print(f"处理后的股票代码和市场类型 - id: {id_value}, market_type: {market_type}")  # 输出处理后的股票代码和市场类型
+
         if st_name == "":
             if not id_value.isdigit():
-                print("非纯数字，id转为name用于搜索名称代码")
+                print(f"非纯数字，id转为name用于搜索名称代码 - id: {id_value}")  # 输出说明非纯数字，将使用名称查找股票代码
                 st_name = id_value
                 id_value = ""
-        print(f"id:{id_value}, name:{st_name}, market_type:{market_type}")
+        print(f"处理后的股票代码和名称 - id: {id_value}, name: {st_name}")  # 输出处理后的股票代码和名称
+
         # 获取最近交易日分时K线数据
-        # market_type = None
         dataset = get_stock_kline_time(secid=id_value, st_name=st_name, market_type=market_type)
         if isinstance(dataset, dict) and 'error' in dataset:  # 检查是否返回了错误信息
-            print("get_cached_data:", dataset['error'])
+            print(f"get_stock_kline_time 错误: {dataset['error']}")  # 输出错误信息
             error = dataset['error']
             return JsonResponse({'error': error})
         # print(dataset)
         # json_data = json.dumps(dataset)
         return JsonResponse(dataset, safe=False)
-        # return JsonResponse({'error': '功能升级中，暂停服务'})
     else:
         get_value = request.GET.get('id')
-        print("GET", get_value)  # 打印ID值
+        print(f"接收到的GET数据 - id: {get_value}")  # 输出接收到的GET数据
         return JsonResponse({'error': 'Invalid request method'})
 
 
 def market_tb(request):
     url = "https://push2.eastmoney.com/api/qt/clist/get?&fid=f184&po=1&pz=50&pn=1&np=1&fltt=2&invt=2&fields=f2,f3,f12,f13,f14,f62,f184,f225,f165,f263,f109,f175,f264,f160,f100,f124,f265,f1&fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2"
-
     resp = requests.get(url, headers)
-    print(resp)
+    print(f"接口响应: {resp}")  # 输出接口响应
     resp.encoding = 'utf8'
-    print(resp.status_code)
+    print(f"接口响应状态码: {resp.status_code}")  # 输出接口响应的状态码
     data = resp.json()['data']['diff']
-    print('data:\n', data)
+    print(f'从接口获取的数据: {data}')  # 输出从接口获取的数据
     paginator = Paginator(data, 10)  # 每页显示10条数据
     page = request.GET.get('page')
-
+    print(f'当前页码: {page}')  # 输出当前页码
     try:
         data = paginator.page(page)
     except PageNotAnInteger:
@@ -240,7 +242,7 @@ def market_tb(request):
     except EmptyPage:
         data = paginator.page(paginator.num_pages)
 
-    print(data)
+    print(f'分页后的数据: {data}')  # 输出分页后的数据
     return render(request, 'market.html', {'data': data})
 
 
@@ -254,10 +256,7 @@ def get_stock_name(request):
     # 读取CSV文件
     stock_info_a_code_name_df = pd.read_csv(csv_file_path)
 
-    # 打印数据框的内容
-    # print(stock_info_a_code_name_df['name'])
     # 获取股票名称列表
     stock_names = stock_info_a_code_name_df['name'].str.replace(" ", "").tolist()
-    # print(stock_names)
+    print(f'从CSV文件中读取的股票名称列表: {stock_names}')  # 输出从CSV文件中读取的股票名称列表
     return JsonResponse({"stock_names": stock_names}, safe=False)
-    # return JsonResponse({'error': '功能升级中，暂停服务'})
