@@ -1,31 +1,23 @@
 {% extends 'layout.html' %}
-
 {% block content %}
-
-    <div class=" card">
-
+    <div class="card">
         <div class="h5 text-bg-secondary">
             <span>添加用户</span>
         </div>
-        <div class="container">
-        </div>
-        <div style="width: 80%;margin: auto">
+        <div style="width: 80%; margin: auto">
             <form action="/user/add/" method="post" novalidate>
                 {% csrf_token %}
                 {% for field in form %}
                     <div class="list-group list-group-flush p-2">
                         <label>{{ field.label }}: </label>
                         {{ field }}
-                        <!-- 数据校验,显示错误信息 -->
                         <span style="color: red;">{{ field.errors.0 }}</span>
                     </div>
                 {% endfor %}
                 <div class="text-center">
                     <button type="submit" class="btn btn-primary">保存</button>
                 </div>
-
             </form>
         </div>
-
     </div>
 {% endblock %}

@@ -2,17 +2,16 @@
 {% block title %}个人信息{% endblock %}
 {% block css %}
     <style>
-            .card {
+        .card {
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 20px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: none;
             margin: 20px;
         }
-
         .card .h5 {
             width: 100%;
             text-align: center;
@@ -21,20 +20,16 @@
             padding: 10px 0;
             border-radius: 5px 5px 0 0;
         }
-
-        .card  table {
+        .card table {
             width: 100%;
         }
-
-        .card  table tr {
+        .card table tr {
             display: flex;
             justify-content: space-between;
         }
-
         .card table td {
             flex: 1;
         }
-
         .card .text-center {
             margin-top: 20px;
             width: 100%;
@@ -49,7 +44,7 @@
             </a>
         </div>
     {% endif %}
-    <div class=" card">
+    <div class="card">
         <div class="h5 text-bg-secondary">
             <h1 style="text-align: center">个人信息</h1>
         </div>
@@ -71,7 +66,6 @@
                 <td>{{ user.email }}</td>
             </tr>
         </table>
-
         <div class="text-center">
             {% if user.is_superuser %}
                 <h3 style="color: red;">管理员个人信息管理需前往系统后台</h3>
@@ -85,5 +79,4 @@
             {% endif %}
         </div>
     </div>
-
 {% endblock %}

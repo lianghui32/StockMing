@@ -18,7 +18,7 @@ from datetime import datetime
 
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
-ts.set_token('0b76ba545cf8f63fd0918a594a5a5efa36097993d4227aa9d5a344ee')
+ts.set_token('e4ea4dc9ed5e94610cdcec8a73c6233589bbc1acc80c0a57dea3111a')
 pro = ts.pro_api()
 
 now_date = datetime.today().strftime("%Y%m%d")
@@ -497,14 +497,19 @@ def rf_pre(request):
                 print('rf_pre:', error)
                 return JsonResponse({'error': error})
             try:
+                # 提取数据集
+                data,now_df = data[0], data[1]
+
                 print("随机森林预测...")
+                print("表头：", data.columns)
+                print("数据：\n", data.head(2))
                 features = ['open', 'high', 'low', 'pre_close', 'close-open', 'pct_chg', 'vol', 'amount', 'high-low',
                             'change', 'trade_date',
                             'close']
                 target = 'close'
                 test_ratio = float(test_ratio)
                 rf_data = random_forest_predict(data, features, target, test_ratio, n_estimators)
-                print(rf_data)
+                print('rf_data:', rf_data)
                 data_json = {
                     'rf_data': rf_data
                 }
@@ -513,6 +518,7 @@ def rf_pre(request):
                 return JsonResponse(data_json, safe=False)
             except Exception as e:
                 # 处理异常并返回错误信息
+                print(e)
                 return JsonResponse({'error': 'rf_pre预测过程报错'})
         else:
             return JsonResponse({'error': '请输入有效的股票代码和时间'})

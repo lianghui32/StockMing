@@ -1,83 +1,88 @@
 {% extends 'layout.html' %}
 {% block css %}
-    <style>
-        .account {
-            margin: 5%;
-            width: 400px;
-            border: 1px solid #dddddd;
-            border-radius: 5px;
-            box-shadow: 5px 5px 20px #aaa;
-            padding: 20px 50px;
-            background-color: #ffffff;
-            opacity: 0.9;
-        }
+<style>
+    .account {
+        margin: 5%;
+        width: 500px;
+        border: 1px solid #dddddd;
+        border-radius: 5px;
+        box-shadow: 0 0 10px #aaa;
+        padding: 20px 50px;
+        background-color: #ffffff;
+        opacity: 0.9;
+    }
+    @media screen and (max-width: 768px) {
+    .account {
+        width: 90%;
+    }
+    }
 
-        .account h2, .account p {
-            margin-top: 10px;
-            text-align: center;
-        }
+    .account h2, .account p {
+        margin-top: 10px;
+        text-align: center;
+    }
 
-        .account form div {
-            margin-top: 10px;
-        }
+    .account form div {
+        margin-top: 10px;
+    }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
 
-        .form-group label {
-            margin-bottom: 5px;
-        }
+    .form-group label {
+        margin-bottom: 5px;
+    }
 
-        .form-group input {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
+    .form-group input {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
 
-        .form-group #flush_img {
-            display: flex;
-            align-items: center;
-        }
+    .form-group #flush_img {
+        display: flex;
+        align-items: center;
+    }
 
-        .form-group #flush_img img {
-            margin-left: 10px;
-        }
+    .form-group #flush_img img {
+        margin-left: 10px;
+    }
 
-        .text-center {
-            text-align: center;
-        }
+    .text-center {
+        text-align: center;
+    }
 
-        .text-center button {
-            width: 80px;
-        }
-    </style>
+    .text-center button {
+        width: 80px;
+    }
+</style>
 {% endblock %}
 
 {% block script %}
-    <script>
-        $(document).ready(function () {
-            $('#flush_img').click(function () {
-                // 添加一个时间戳参数，以确保每次请求都是新的图片
-                var imageUrl = '/image/code/?t=' + new Date().getTime();
+<script>
+    $(document).ready(function () {
+        $('#flush_img').click(function () {
+            // 添加一个时间戳参数，以确保每次请求都是新的图片
+            var imageUrl = '/image/code/?t=' + new Date().getTime();
 
-                $.ajax({
-                    url: imageUrl,
-                    type: 'GET',
-                    success: function (data) {
-                        // 更新验证码图片
-                        $('#image_code').attr('src', imageUrl);
+            $.ajax({
+                url: imageUrl,
+                type: 'GET',
+                success: function (data) {
+                    // 更新验证码图片
+                    $('#image_code').attr('src', imageUrl);
 
-                        // 清空验证码输入框
-                        $('#id_code').val('');
-                    },
-                    error: function () {
-                        console.log("获取验证码出错");
-                        alert("获取验证码出错");
-                    }
-                });
+                    // 清空验证码输入框
+                    $('#id_code').val('');
+                },
+                error: function () {
+                    console.log("获取验证码出错");
+                    alert("获取验证码出错");
+                }
             });
         });
-    </script>
+    });
+</script>
 {% endblock %}
