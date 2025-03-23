@@ -3,7 +3,39 @@
 {% block title %}Prediction Page{% endblock %}
 {% block css %}
 <style>
+    .ctr {
+          display: grid;
+          grid-gap: 10px; /* 网格间隔 */
+          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* 自动列宽 */
+          grid-auto-rows: min-content; /* 自动行高，内容决定 */
+      }
 
+      .item {
+          border-radius: 5px; /* 圆角 */
+          background-color: #fff; /* 背景色 */
+          padding: 10px; /* 内边距 */
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 阴影 */
+      }
+
+      #k-box,
+      #LSTM-box,
+      #Loss-box,
+      #RT-box {
+          height: 400px; /* 可以根据需要调整单个图表的默认高度 */
+      }
+
+      @media (max-width: 600px) {
+          #k-box,
+          #LSTM-box,
+          #Loss-box,
+          #RT-box {
+              height: auto; /* 小屏幕时自动高度 */
+          }
+
+          .ctr {
+              grid-template-columns: 1fr; /* 小屏幕一列 */
+          }
+      }
 </style>
 {% endblock %}
 
@@ -39,17 +71,17 @@
     <div class="col-sm-10 col-md-6 col-lg-2 col-xl-2 p-1">
         <label for="test_ratio">测试集数据占比：</label>
         <input aria-describedby="submit-button" class="form-control" id="test_ratio" name="test_ratio"
-               placeholder="默认=0.25"
+               placeholder="默认=0.15"
                type="text"
-               value="0.25">
+               value="0.15">
     </div>
 
     <div class="col-sm-10 col-md-6 col-lg-2 col-xl-2 p-1">
         <label for="train_epochs">训练轮次：</label>
         <input aria-describedby="submit-button" class="form-control" id="train_epochs" name="train_epochs"
-               placeholder="默认=10"
+               placeholder="默认=60"
                type="text"
-               value="10">
+               value="60">
     </div>
 
     <!--    <div class="col-sm-10 col-md-6 col-lg-2 col-xl-2 p-1">-->
@@ -77,102 +109,179 @@
 
 </div>
 
-<div class="row">
-    {#历史K线#}
-    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
-            <h2>历史K线</h2>
-            <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
-            <div id="k-box" style="width: 100%; height: 400px; border: 1px solid #ccc; overflow: hidden"></div>
-    </div>
+<div class="ctr">
     {#LSTM预测结果#}
-    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
-        <h2>预测结果</h2>
+    <div class="item">
+
+        <h2>LSTM预测结果</h2>
+        <!-- 在LSTM预测结果图旁边添加一个新的div来展示预测价格及涨跌情况 -->
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th style="border: 1px solid #ccc; ">指标</th>
+                <th style="border: 1px solid #ccc; ">值</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td style="border: 1px solid #ccc;">预测价格</td>
+                <td id="predicted-price" style="border: 1px solid #ccc; "></td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ccc; ">前一天预测价格</td>
+                <td id="last-predicted-price" style="border: 1px solid #ccc; "></td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ccc; ">前一天实际价格</td>
+                <td id="previous-price" style="border: 1px solid #ccc; "></td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ccc; ">预测涨跌情况</td>
+                <td id="price-change" style="border: 1px solid #ccc;"></td>
+            </tr>
+            </tbody>
+        </table>
         <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
-        <div id="LSTM-box" style="width: 100%;  height: 400px; border: 1px solid #ccc; overflow: hidden"></div>
+        <div id="LSTM-box" style="width: 100%;  border: 1px solid #ccc; overflow: hidden">
+
+        </div>
 
         {#LSTM Loss值#}
         <div class="">
             <div id="Loss-box" style="width: 100%;  height: 400px; border: 1px solid #ccc; overflow: hidden"></div>
         </div>
-    </div>
-    {#数据说明#}
-    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
-        <h2>数据说明</h2>
-        <div style="width: 100%; height: 800px; border: 1px solid #ccc; overflow-y: scroll">
-            <p style="text-align: center"><strong>输入参数说明：</strong></p>
-            <p><strong>起始时间（start_date）：</strong>输入您希望预测的时间段的起始日期。</p>
-            <p><strong>最终时间（end_date）：</strong>输入您希望预测的时间段的结束日期。</p>
-            <p><strong>模型时间窗口（look_back）：</strong>输入模型用于预测的过去数据的时间窗口长度，默认为5。</p>
-            <p><strong>测试集数据占比（test_ratio）：</strong>输入测试集数据占总数据的比例，默认为0.25。</p>
-            <p><strong>训练轮次（train_epochs）：</strong>输入模型训练的轮次，默认为10。</p>
-            <p><strong>股票代码（ts_code）：</strong>输入您希望预测的股票的代码。</p>
 
-            <p style="text-align: center"><strong>模型预测结果说明：</strong></p>
-            <p>本模型使用历史价格数据，通过长短期记忆网络（LSTM）预测未来的股票收盘价。</p>
-            <p><strong>训练集预测（Train Predicted）：</strong>显示了模型基于训练数据集进行的价格预测。</p>
-            <p><strong>测试集预测（Test Predicted）：</strong>显示了模型基于测试数据集（即模型未见过的数据）进行的价格预测。
-            </p>
-            <p><strong>实际价格（Actual）：</strong>对应时间段内股票的真实收盘价。</p>
-            <p><strong>下一交易日预测（Next Day Predicted）：</strong>模型预测的下一日股票收盘价。</p>
-            <p><strong>MSE（Mean Squared Error）：</strong>衡量模型预测值与实际值之间差异的平均平方值，越低表示模型预测越准确。
-            </p>
-            <p><strong>MAE（Mean Absolute Error）：</strong>衡量模型预测值与实际值之间差异的平均绝对值，同样越低越好。</p>
-            <p><strong>训练损失（Train Loss）：</strong>模型在训练过程中每一 epoch 的损失函数值，用于监控模型学习进度。</p>
-            <p><strong>验证损失（Validation Loss）：</strong>模型在验证集上的损失函数值，用于评估模型在未见过的数据上的表现。
-            </p>
-            <p><strong>早停（Early Stopping）：</strong>当验证损失在一定数量的 epochs 内没有改善时，早停机制会终止训练以避免过拟合。
-            </p>
+        {#数据说明#}
+        <div class="">
+            <h2>数据说明</h2>
+            <div style="width: 100%; height: 400px; border: 1px solid #ccc; overflow-y: scroll">
+                <p style="text-align: center"><strong>输入参数说明：</strong></p>
+                <p><strong>起始时间（start_date）：</strong>输入您希望预测的时间段的起始日期。</p>
+                <p><strong>最终时间（end_date）：</strong>输入您希望预测的时间段的结束日期。</p>
+                <p><strong>模型时间窗口（look_back）：</strong>输入模型用于预测的过去数据的时间窗口长度，默认为5。</p>
+                <p><strong>测试集数据占比（test_ratio）：</strong>输入测试集数据占总数据的比例，默认为0.25。</p>
+                <p><strong>训练轮次（train_epochs）：</strong>输入模型训练的轮次，默认为10。</p>
+                <p><strong>股票代码（ts_code）：</strong>输入您希望预测的股票的代码。</p>
+
+                <p style="text-align: center"><strong>模型预测结果说明：</strong></p>
+                <p>本模型使用历史价格数据，通过长短期记忆网络（LSTM）预测未来的股票收盘价。</p>
+                <p><strong>训练集预测（Train Predicted）：</strong>显示了模型基于训练数据集进行的价格预测。</p>
+                <p><strong>测试集预测（Test Predicted）：</strong>显示了模型基于测试数据集（即模型未见过的数据）进行的价格预测。
+                </p>
+                <p><strong>实际价格（Actual）：</strong>对应时间段内股票的真实收盘价。</p>
+                <p><strong>下一交易日预测（Next Day Predicted）：</strong>模型预测的下一日股票收盘价。</p>
+                <p><strong>MSE（Mean Squared Error）：</strong>衡量模型预测值与实际值之间差异的平均平方值，越低表示模型预测越准确。
+                </p>
+                <p><strong>MAE（Mean Absolute Error）：</strong>衡量模型预测值与实际值之间差异的平均绝对值，同样越低越好。
+                </p>
+                <p><strong>训练损失（Train Loss）：</strong>模型在训练过程中每一 epoch 的损失函数值，用于监控模型学习进度。
+                </p>
+                <p><strong>验证损失（Validation Loss）：</strong>模型在验证集上的损失函数值，用于评估模型在未见过的数据上的表现。
+                </p>
+                <p><strong>早停（Early Stopping）：</strong>当验证损失在一定数量的 epochs 内没有改善时，早停机制会终止训练以避免过拟合。
+                </p>
+            </div>
         </div>
+
     </div>
 
 
     {#随机森林#}
-    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
-        <h2>随机森林预测结果</h2>
-        <div class="row">
-            <div class="col-auto">
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <label for="n_estimators" class="input-group-text" style="width: auto;">
-                            输入决策树数量：
-                        </label>
-                    </div>
-                    <input type="text" class="form-control" placeholder="输入决策树数量" aria-label="输入决策树数量"
-                           aria-describedby="button-rf" name="n_estimators" id="n_estimators" value="100">
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" id="button-rf" type="button">提交</button>
+    <div class="item">
+        <div style="display: flex; justify-content: space-between; align-items: center">
+            <h2>随机森林预测结果</h2>
+            <div class="row">
+                <div class="col-auto">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="n_estimators" style="width: auto;">
+                                输入决策树数量：
+                            </label>
+                        </div>
+                        <input aria-describedby="button-rf" aria-label="输入决策树数量" class="form-control"
+                               id="n_estimators"
+                               name="n_estimators" placeholder="输入决策树数量" type="text" value="100">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" id="button-rf" type="button">提交</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-    {#            <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->#}
-    <div id="RT-box" style="width: 100%;  height: 500px; border: 1px solid #ccc; overflow: hidden"></div>
-    <h2>结果分析</h2>
-    <div class="col-12" style="background-color: #e0f8e0;font-size: small">
-        <div style="border: 1px solid #ccc;">
-            <h5>随机森林</h5>
-            <table class="table table-striped" id="evaluation_metrics" style="border: 1px solid gray">
-                <thead>
-                <tr>
-                    <th>指标名</th>
-                    <th>训练均方误差（train_mse）</th>
-                    <th>测试均方误差（test_mse）</th>
-                    <th>R2分数</th>
-                </tr>
-                <tr id="zhi">
-                    <th>指标值</th>
-                    {#                            <!-- 动态生成的表格行将会插入到这里 -->#}
-                </tr>
-                </thead>
-            </table>
-            <div id="feature-importance" style="height: 400px;overflow: hidden">
+        <!-- 添加表格 -->
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th style="border: 1px solid #ccc;">指标</th>
+                <th style="border: 1px solid #ccc;">值</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td style="border: 1px solid #ccc;">预测价格</td>
+                <td id="rf-predicted-price" style="border: 1px solid #ccc;"></td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ccc;">前一天预测价格</td>
+                <td id="rf-last-predicted-price" style="border: 1px solid #ccc;"></td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ccc;">前一天实际价格</td>
+                <td id="rf-previous-price" style="border: 1px solid #ccc;"></td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ccc;">预测涨跌情况</td>
+                <td id="rf-price-change" style="border: 1px solid #ccc;"></td>
+            </tr>
+            </tbody>
+        </table>
+        {#            <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->#}
+        <div id="RT-box" style="width: 100%;  height: 500px; border: 1px solid #ccc; overflow: hidden"></div>
+        <h2>结果分析</h2>
+        <div class="col-12" style="background-color: #e0f8e0;font-size: small">
+            <div style="border: 1px solid #ccc;">
+                <h5>随机森林</h5>
+                <table class="table table-striped" id="evaluation_metrics" style="border: 1px solid gray">
+                    <thead>
+                    <tr>
+                        <th>指标名</th>
+                        <th>训练均方误差（train_mse）</th>
+                        <th>测试均方误差（test_mse）</th>
+                        <th>R2分数</th>
+                    </tr>
+                    <tr id="zhi">
+                        <th>指标值</th>
+                        <!-- 动态生成的表格行将会插入到这里 -->
+                    </tr>
+                    </thead>
+                </table>
 
+                <div id="feature-importance" style="height: 400px;overflow: hidden"></div>
+                <!-- 添加分析结果说明 -->
+                <div style="padding: 10px;">
+                    <h6>分析结果说明：</h6>
+                    <ul>
+                        <li><strong>训练均方误差（train_mse）</strong>：衡量模型在训练集上的预测误差，值越小表示模型在训练数据上的拟合效果越好。
+                        </li>
+                        <li><strong>测试均方误差（test_mse）</strong>：衡量模型在测试集上的预测误差，值越小表示模型在未见过的数据上的泛化能力越强。
+                        </li>
+                        <li><strong>R2分数</strong>：衡量模型的解释能力，取值范围为 [0, 1]，值越接近 1 表示模型对数据的解释能力越强。
+                        </li>
+                    </ul>
+                    <p><strong>特征重要性图</strong>：展示了模型中各个特征对预测结果的贡献程度，重要性值越高表示该特征对预测结果的影响越大。
+                    </p>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
+</div>
+{#历史K线#}
+<div class="item">
+    <h2>历史K线</h2>
+    <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+    <div id="k-box" style="width: 100%; height: 400px; border: 1px solid #ccc; overflow: hidden"></div>
 </div>
 <script src="{% static 'plugins/echarts.min.js' %}"></script>
 <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
@@ -184,7 +293,7 @@
 <script>
     $(document).ready(function () {
         var today = new Date();
-        var sixMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 6, today.getDate());
+        var sixMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 12, today.getDate());
 
         $('#start_date').val(sixMonthsAgo.toISOString().slice(0, 10));
         $('#end_date').val(today.toISOString().slice(0, 10));
@@ -580,6 +689,32 @@
             test_y_pre.unshift(null);
             test_y_actual.unshift(null);
         }
+         // 获取预测价格、前一天预测价格和前一天实际价格
+        var predictedPrice = test_y_pre[test_y_pre.length - 1]; // 预测价格
+        var lastPredictedPrice = test_y_pre[test_y_pre.length - 2]; // 前一天预测价格
+        var previousPrice = test_y_actual[test_y_actual.length - 2]; // 前一天实际价格
+
+        // 计算涨跌情况
+        var priceChange = predictedPrice - previousPrice;
+        var changeText = priceChange >= 0 ? '上涨' : '下跌';
+
+        // 获取 HTML 元素
+        var predictedPriceElement = document.getElementById('predicted-price');
+        var lastPredictedPriceElement = document.getElementById('last-predicted-price');
+        var previousPriceElement = document.getElementById('previous-price');
+        var priceChangeElement = document.getElementById('price-change');
+
+        // 检查元素是否存在
+        if (predictedPriceElement && lastPredictedPriceElement && previousPriceElement && priceChangeElement) {
+            predictedPriceElement.textContent = predictedPrice.toFixed(2);
+            lastPredictedPriceElement.textContent = lastPredictedPrice.toFixed(2);
+            previousPriceElement.textContent = previousPrice.toFixed(2);
+            priceChangeElement.textContent = changeText + ' ' + Math.abs(priceChange).toFixed(2);
+        } else {
+            console.error('HTML 元素未找到！');
+        }
+
+
         /*预测结果*/
         var LSTM_option = {
             title: {
@@ -863,6 +998,32 @@
               const testData = rf_data.test_data;
               const metrics = rf_data.evaluation_metrics;
               const ftimp = rf_data.feature_importance;
+
+                // 获取预测价格、前一天预测价格和前一天实际价格
+                var predictedPrice = testData.y_predicted[testData.y_predicted.length - 1]; // 预测价格
+                var lastPredictedPrice = testData.y_predicted[testData.y_predicted.length - 2]; // 前一天预测价格
+                var previousPrice = testData.y_actual[testData.y_actual.length - 2]; // 前一天实际价格
+
+                // 计算涨跌情况
+                var priceChange = predictedPrice - previousPrice;
+                var changeText = priceChange >= 0 ? '上涨' : '下跌';
+
+                // 获取 HTML 元素
+                var predictedPriceElement = document.getElementById('rf-predicted-price');
+                var lastPredictedPriceElement = document.getElementById('rf-last-predicted-price');
+                var previousPriceElement = document.getElementById('rf-previous-price');
+                var priceChangeElement = document.getElementById('rf-price-change');
+
+                // 检查元素是否存在
+                if (predictedPriceElement && lastPredictedPriceElement && previousPriceElement && priceChangeElement) {
+                predictedPriceElement.textContent = predictedPrice.toFixed(2);
+                lastPredictedPriceElement.textContent = lastPredictedPrice.toFixed(2);
+                previousPriceElement.textContent = previousPrice.toFixed(2);
+                priceChangeElement.textContent = changeText + ' ' + Math.abs(priceChange).toFixed(2);
+                } else {
+                console.error('HTML 元素未找到！');
+                }
+
 
               // 函数用于将评估指标转换为HTML表格行
               function Metrics(metrics) {
