@@ -42,7 +42,10 @@ StockMing 的软件架构包括以下几个主要组件：
 
 ## 安装教程
 
-### 本地环境
+### 本地环境(Python3.12)
+PS: [有的可能需要安装 Microsoft Visual C++ Build Tools](https://blog.csdn.net/nk1610099/article/details/141504899)
+[推荐使用UV: Python包和项目管理器（从入门到不放弃教程）
+](https://blog.csdn.net/MurphyStar/article/details/147465218)
 
 1. **创建Python虚拟环境并启用**：
    
