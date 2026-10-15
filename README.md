@@ -1,5 +1,7 @@
 # StockMing
 
+[![CI](https://github.com/lianghui32/StockMing/actions/workflows/ci.yml/badge.svg)](https://github.com/lianghui32/StockMing/actions/workflows/ci.yml)
+
 gitee仓库：[https://gitee.com/lianghui2333/stock-ming](https://gitee.com/lianghui2333/stock-ming)  
 github仓库：[https://github.com/lianghui32/StockMing](https://github.com/lianghui32/StockMing) 
 
@@ -44,8 +46,8 @@ StockMing 的软件架构包括以下几个主要组件：
 
 ### 本地环境(Python3.12)
 PS: [有的可能需要安装 Microsoft Visual C++ Build Tools](https://blog.csdn.net/nk1610099/article/details/141504899)
-[推荐使用UV: Python包和项目管理器（从入门到不放弃教程）
-](https://blog.csdn.net/MurphyStar/article/details/147465218)
+
+推荐使用 [UV: Python包和项目管理器（从入门到不放弃教程）](https://blog.csdn.net/MurphyStar/article/details/147465218)
 
 1. **创建Python虚拟环境并启用**：
    
