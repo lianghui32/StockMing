@@ -2,7 +2,7 @@
 
 > **本项目已停止维护，不再修复问题。**
 >
-> - 东方财富的行情接口已变更，`stock_all/views/market.py` 相关的分时/历史数据获取在当前代码下已不可用。
+> - 东方财富的行情接口可能已变更，`stock_all/views/market.py` 相关的分时/历史数据获取存在失效风险；本项目不再修复。
 > - Tushare token、Django `SECRET_KEY`、东财 Cookie 原先硬编码在源码里，现已改为读环境变量。运行前至少设置 `TUSHARE_TOKEN`（在 https://tushare.pro 自助获取）；`DJANGO_SECRET_KEY` 与 `EM_COOKIE` 可选。
 > - 历史提交中仍含上述旧值，未做历史清除；请自行申请 token，不要复用仓库里出现过的旧值。
 > - 提问前请先看「安装注意事项」；本项目不再提供部署协助。
@@ -12,7 +12,7 @@
 gitee仓库：[https://gitee.com/lianghui2333/stock-ming](https://gitee.com/lianghui2333/stock-ming)  
 github仓库：[https://github.com/lianghui32/StockMing](https://github.com/lianghui32/StockMing) 
 
-StockMing 是一个简易的股票预测系统，其功能可能未能满足所有人的期望。🙏我对此表示歉意，并期待未来能够提供更完善的服务。已线上部署的网站示例：[演示网站](http://175.178.120.28:8001/login/) 
+StockMing 是一个简易的股票预测系统，其功能可能未能满足所有人的期望。🙏我对此表示歉意，并期待未来能够提供更完善的服务。已线上部署的网站示例：[演示网站](http://116.198.228.5:8001/) （HTTP 明文，请勿使用真实密码登录）
 
 
 
