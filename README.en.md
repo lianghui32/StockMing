@@ -1,9 +1,15 @@
 # StockMing
 
+> **This project is no longer maintained and issues will not be fixed.**
+>
+> - The East Money quote API may have changed, so the intraday/historical data fetching in `stock_all/views/market.py` may no longer work.
+> - The Tushare token, Django `SECRET_KEY` and the East Money cookie used to be hard-coded in the source and are now read from environment variables. Set `TUSHARE_TOKEN` (free at https://tushare.pro) before running; `DJANGO_SECRET_KEY` and `EM_COOKIE` are optional.
+> - Older values still exist in the commit history; no history rewrite was done. Please register your own token instead of reusing anything found in this repository.
+
 Gitee repository: [https://gitee.com/lianghui2333/stock-ming](https://gitee.com/lianghui2333/stock-ming)  
 GitHub repository: [https://github.com/lianghui32/StockMing](https://github.com/lianghui32/StockMing)  
 
-StockMing is a simple stock prediction system. Its functionality may not meet everyone's expectations.🙏 I apologize for this and look forward to providing more comprehensive services in the future. An example of a deployed website is available at: [Demo Website](http://175.178.120.28:8001/login/)
+StockMing is a simple stock prediction system. Its functionality may not meet everyone's expectations.🙏 I apologize for this and look forward to providing more comprehensive services in the future. An example of a deployed website is available at: [Demo Website](http://116.198.228.5:8001/) (plain HTTP — do not sign in with a password you use elsewhere)
 
 **Another repository for a previously purchased system based on Flask + LSTM**: [lh/flask_stockv2](https://gitee.com/lianghui2333/flask_stockv2)
 
