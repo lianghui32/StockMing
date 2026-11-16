@@ -1,4 +1,5 @@
 import json
+import os
 import requests
 from django.contrib.staticfiles import finders
 from django.http import JsonResponse
@@ -13,7 +14,7 @@ headers = {
     'Accept-Encoding': 'gzip, deflate, br, zstd',
     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
     'Connection': 'keep-alive',
-    "Cookie": "qgqp_b_id=e778b242b97b124532fe2b3981c06dcc; emshistory=%5B%22000001%22%5D; websitepoptg_api_time=1711887019927; st_si=29926566787139; st_asi=delete; HAList=ty-1-000001-%u4E0A%u8BC1%u6307%u6570%2Cty-0-000680-%u5C71%u63A8%u80A1%u4EFD%2Cty-0-000001-%u5E73%u5B89%u94F6%u884C%2Cty-0-300420-%u4E94%u6D0B%u505C%u8F66%2Cty-0-000860-%u987A%u946B%u519C%u4E1A%2Cty-0-399001-%u6DF1%u8BC1%u6210%u6307; st_pvi=52155918792792; st_sp=2023-03-28%2010%3A06%3A27; st_inirUrl=https%3A%2F%2Fwww.eastmoney.com%2F; st_sn=64; st_psi=20240402001639291-113200302671-3888278012",
+    "Cookie": os.environ.get('EM_COOKIE', ''),
     "Host": None,
     "Referer": None,
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0",

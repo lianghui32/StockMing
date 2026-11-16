@@ -1,5 +1,12 @@
 # StockMing
 
+> **本项目已停止维护，不再修复问题。**
+>
+> - 东方财富的行情接口已变更，`stock_all/views/market.py` 相关的分时/历史数据获取在当前代码下已不可用。
+> - Tushare token、Django `SECRET_KEY`、东财 Cookie 原先硬编码在源码里，现已改为读环境变量。运行前至少设置 `TUSHARE_TOKEN`（在 https://tushare.pro 自助获取）；`DJANGO_SECRET_KEY` 与 `EM_COOKIE` 可选。
+> - 历史提交中仍含上述旧值，未做历史清除；请自行申请 token，不要复用仓库里出现过的旧值。
+> - 提问前请先看「安装注意事项」；本项目不再提供部署协助。
+
 [![CI](https://github.com/lianghui32/StockMing/actions/workflows/ci.yml/badge.svg)](https://github.com/lianghui32/StockMing/actions/workflows/ci.yml)
 
 gitee仓库：[https://gitee.com/lianghui2333/stock-ming](https://gitee.com/lianghui2333/stock-ming)  

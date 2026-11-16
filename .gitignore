@@ -17,3 +17,9 @@ __pycache__/
 .idea/
 
 db.sqlite3
+
+# 本地凭据（TUSHARE_TOKEN / DJANGO_SECRET_KEY / EM_COOKIE 放这里，别提交）
+.env
+.env.*
+!.env.example
+local_settings.py

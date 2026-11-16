@@ -18,7 +18,7 @@ from datetime import datetime
 
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
-ts.set_token('e4ea4dc9ed5e94610cdcec8a73c6233589bbc1acc80c0a57dea3111a')
+ts.set_token(os.environ.get('TUSHARE_TOKEN', ''))
 pro = ts.pro_api()
 
 now_date = datetime.today().strftime("%Y%m%d")
